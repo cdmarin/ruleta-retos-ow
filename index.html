@@ -1,0 +1,2315 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Ruleta de Retos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:ital,wdth,wght@0,50..125,100..900;1,50..125,100..900&family=Barlow+Semi+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens ===== */
+:root {
+  color-scheme: dark;
+  /* fondos */
+  --bg: #0d1522;
+  --bg-deep: #080e18;
+  --panel: #162033;
+  --panel-2: #1c2940;
+  --panel-3: #243452;
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .18);
+  /* texto */
+  --text: #f3f1ec;
+  --text-2: #a9b6cb;
+  --text-3: #7d8ba3;
+  /* acentos */
+  --accent: #f99e1a;
+  --accent-hot: #ffb84d;
+  --accent-deep: #c9760a;
+  --accent-ink: #1a1105;
+  --accent-soft: rgba(249, 158, 26, .14);
+  --blue: #40b4ff;
+  --focus: #40b4ff;
+  --danger: #ff5f57;
+  /* roles (solo chips, iconos y bordes) */
+  --tank: #5aa7ff;
+  --damage: #ff5f57;
+  --support: #3fdc9a;
+  /* ruleta */
+  --seg-a: #172642;
+  --seg-b: #1f3357;
+  --seg-c: #1a2c4c;
+  --ring: #2b3d5c;
+  --ring-hi: #8fa7c9;
+  /* dificultad */
+  --d1: #3fdc9a;
+  --d2: #f99e1a;
+  --d3: #ff5f57;
+  --chroma: #00ff00;
+  /* tipografía */
+  --font-display: "Saira", "Saira Extra Condensed", Impact, "Arial Narrow", "DejaVu Sans Condensed", sans-serif;
+  --font-body: "Barlow Semi Condensed", "Barlow", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* forma */
+  --skew: -12deg;
+  --unskew: 12deg;
+  --cut: 18px;
+  --cut-sm: 10px;
+  --gutter: 16px;
+  --reel-h: 8.6rem;
+}
+
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.4;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.disp {
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%;
+  text-transform: uppercase; letter-spacing: .01em;
+}
+.ri { width: 1em; height: 1em; flex: none; display: inline-block; vertical-align: -.12em; }
+.ri.role-tank { color: var(--tank); } .ri.role-damage { color: var(--damage); } .ri.role-support { color: var(--support); }
+
+/* ===== Botones paralelogramo ===== */
+.pbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 6px 18px;
+  transform: skewX(var(--skew));
+  background: rgba(13, 21, 34, .6); border: 1.5px solid var(--line-strong); border-radius: 0;
+  color: var(--text);
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%;
+  font-size: 1.15rem; letter-spacing: .04em; text-transform: uppercase;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.pbtn > span { display: inline-flex; align-items: center; gap: 8px; transform: skewX(var(--unskew)); }
+.pbtn:hover { background: var(--panel-2); border-color: var(--text-2); }
+.pbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-hot); background: var(--accent-soft); }
+.pbtn svg { width: 18px; height: 18px; flex: none; }
+.pbtn.sm { min-height: 38px; padding: 4px 14px; font-size: 1rem; }
+.pbtn.danger { color: var(--danger); border-color: rgba(255, 95, 87, .45); }
+.pbtn.danger:hover { background: rgba(255, 95, 87, .12); }
+button[aria-disabled="true"], button:disabled { opacity: .42; cursor: not-allowed; }
+
+/* ===== Cabecera ===== */
+.topbar {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px calc(var(--gutter) + 6px);
+  background: linear-gradient(180deg, #0a111c, #0c1420);
+  border-bottom: 1px solid var(--line);
+  box-shadow: inset 0 -2px 0 rgba(249, 158, 26, .0), 0 10px 30px rgba(0, 0, 0, .25);
+}
+.topbar::after {
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 180px; height: 2px; background: var(--accent);
+}
+.brand { display: flex; flex-direction: column; margin-right: auto; min-width: 0; }
+.eyebrow {
+  font-family: var(--font-body); font-weight: 700; font-size: .78rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent);
+}
+.brand h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.7rem); line-height: .95; }
+.brand h1 .de { color: var(--text-2); font-weight: 600; }
+.top-actions { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 6px; }
+#btnPanel { display: none; }
+
+/* ===== Layout ===== */
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 380px; min-height: calc(100vh - 76px); }
+.stage {
+  position: relative; padding: 24px var(--gutter) 44px; min-width: 0; overflow: hidden;
+  background:
+    linear-gradient(104deg, transparent 38%, rgba(140, 205, 255, .045) 47%, rgba(140, 205, 255, .0) 56%),
+    repeating-linear-gradient(118deg, transparent 0 60px, rgba(255, 255, 255, .016) 60px 62px),
+    radial-gradient(ellipse 80% 60% at 50% 0%, #13213a 0%, transparent 70%),
+    var(--bg);
+}
+.stage-grid { display: grid; gap: 30px; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; }
+.panel { background: var(--bg-deep); border-left: 1px solid var(--line); padding: 18px var(--gutter) 40px; min-width: 0; }
+
+/* ===== Ruleta ===== */
+.wheel-col { min-width: 0; }
+.wheel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.in-play { font-size: 1.7rem; line-height: 1; }
+.in-play b { color: var(--accent); font-weight: 900; font-size: 1.15em; margin-right: .1em; }
+.in-play-sub { color: var(--text-2); font-size: .95rem; }
+.wheel-wrap { position: relative; width: 100%; max-width: min(660px, 78vh); aspect-ratio: 1 / 1; margin: 0 auto; }
+.wheel-wrap::before {
+  content: ""; position: absolute; inset: -10%; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(64, 180, 255, .20) 0%, rgba(64, 180, 255, .06) 40%, transparent 66%);
+}
+.wheel-wrap canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
+
+/* ===== Tarjeta de resultado ===== */
+.result-col { min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.result {
+  position: relative; overflow: hidden;
+  background:
+    linear-gradient(118deg, rgba(249, 158, 26, .0) 0 62%, rgba(249, 158, 26, .07) 62% 64%, transparent 64%),
+    linear-gradient(180deg, var(--panel-2), var(--panel));
+  border-top: 3px solid var(--line-strong);
+  padding: 18px 22px 22px;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
+}
+.result[data-role] { border-top-color: var(--accent); }
+.result::before {
+  content: ""; position: absolute; top: -30%; bottom: -30%; left: 0; width: 60%; z-index: 3; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--accent) 25%, var(--accent-hot) 50%, var(--accent) 75%, transparent);
+  transform: translateX(-170%) skewX(-22deg); opacity: 0;
+}
+.result.revealing::before { animation: sweep .8s cubic-bezier(.55, .05, .3, 1) both; }
+.result.revealing { animation: flash 1.4s ease-out both; }
+@keyframes sweep {
+  0% { transform: translateX(-170%) skewX(-22deg); opacity: 1; }
+  100% { transform: translateX(280%) skewX(-22deg); opacity: 1; }
+}
+@keyframes flash {
+  0% { box-shadow: inset 0 0 0 200px rgba(249, 158, 26, 0); }
+  30% { box-shadow: inset 0 0 0 200px rgba(249, 158, 26, .22); }
+  100% { box-shadow: inset 0 0 0 200px rgba(249, 158, 26, 0); }
+}
+.kicker { font-family: var(--font-body); font-size: .85rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+.hero-name {
+  font-family: var(--font-display); font-style: italic; font-weight: 900; font-stretch: 62%;
+  text-transform: uppercase; color: var(--text);
+  font-size: clamp(3.4rem, 7.2vw, 7rem); line-height: .88; letter-spacing: 0;
+  margin: 4px 0 12px; padding-right: .12em; overflow-wrap: break-word; hyphens: none;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, .35);
+}
+.hero-name.idle { color: var(--text-3); font-size: clamp(2.4rem, 4.6vw, 3.8rem); text-shadow: none; }
+.result.revealing .hero-name { animation: namein .6s .28s cubic-bezier(.2, 1.1, .3, 1) both; }
+@keyframes namein {
+  0% { clip-path: inset(-20% 100% -20% -10%); transform: translateX(-30px); }
+  100% { clip-path: inset(-20% -10% -20% -10%); transform: none; }
+}
+.hero-meta { display: flex; gap: 10px; flex-wrap: wrap; min-height: 32px; padding-left: 6px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 3px 14px; transform: skewX(var(--skew));
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%;
+  font-size: 1.15rem; letter-spacing: .05em; text-transform: uppercase;
+  background: rgba(0, 0, 0, .35); border-bottom: 3px solid var(--rc, var(--text-3));
+}
+.tag > * { transform: skewX(var(--unskew)); }
+.tag.role-tank { --rc: var(--tank); } .tag.role-damage { --rc: var(--damage); } .tag.role-support { --rc: var(--support); }
+.tag.muted { color: var(--text-2); --rc: var(--line-strong); }
+
+.retos { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+.reto { background: rgba(0, 0, 0, .28); border: 1px solid var(--line); }
+.reto-label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px; background: var(--panel-3); border-bottom: 1px solid var(--line);
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%;
+  font-size: 1.2rem; letter-spacing: .05em; text-transform: uppercase; color: var(--text);
+}
+.reto-label::before { content: ""; width: 14px; height: 14px; background: var(--accent); transform: skewX(var(--skew)); flex: none; }
+.reel { position: relative; height: var(--reel-h); overflow: hidden; background: var(--bg-deep); }
+.reel::before, .reel::after { content: ""; position: absolute; left: 0; right: 0; height: 24%; z-index: 1; pointer-events: none; }
+.reel::before { top: 0; background: linear-gradient(var(--bg-deep), transparent); }
+.reel::after { bottom: 0; background: linear-gradient(transparent, var(--bg-deep)); }
+.reel.stopped { height: auto; background: transparent; box-shadow: inset 4px 0 0 var(--accent); }
+.reel.stopped::before, .reel.stopped::after { display: none; }
+.reel-track { will-change: transform; }
+.reel-row { height: var(--reel-h); display: flex; align-items: center; padding: 0 18px; font-size: 1.35rem; font-weight: 600; line-height: 1.25; color: var(--text-2); }
+.reel-row span { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.reel-final { margin: 0; padding: 16px 18px 14px 22px; font-size: clamp(1.35rem, 2.2vw, 1.8rem); font-weight: 700; line-height: 1.28; color: var(--text); }
+.reto-meta { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 14px 12px 22px; min-height: 12px; }
+.reto-meta:empty { padding-bottom: 0; }
+.diff { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%; text-transform: uppercase; letter-spacing: .06em; font-size: 1.1rem; color: var(--dc); }
+.diff .bars { display: inline-flex; gap: 3px; }
+.diff .bars i { width: 9px; height: 18px; transform: skewX(var(--skew)); background: rgba(255, 255, 255, .12); }
+.diff .bars i.on { background: var(--dc); }
+.diff-1 { --dc: var(--d1); } .diff-2 { --dc: var(--d2); } .diff-3 { --dc: var(--d3); }
+.placeholder { color: var(--text-2); margin: 6px 0 0; font-size: 1.05rem; }
+.placeholder kbd, .btn-primary kbd { font-family: var(--font-body); font-style: normal; font-size: .8em; padding: 1px 7px; border: 1.5px solid currentColor; }
+.notice {
+  padding: 10px 16px; background: var(--panel); border-left: 4px solid var(--blue); color: var(--text); font-size: 1rem;
+}
+
+/* ===== Controles ===== */
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; padding: 0 10px; }
+.btn-primary {
+  grid-column: 1 / -1;
+  min-height: 78px; padding: 8px 30px;
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+  font-size: clamp(1.9rem, 2.6vw, 2.6rem); font-weight: 900; letter-spacing: .05em; white-space: nowrap;
+  box-shadow: 0 0 0 0 rgba(249, 158, 26, .0), 0 10px 26px rgba(249, 158, 26, .22);
+  justify-content: space-between;
+  background-image: linear-gradient(100deg, transparent 0 70%, rgba(255, 255, 255, .22) 70% 73%, transparent 73% 78%, rgba(255, 255, 255, .12) 78% 80%, transparent 80%);
+}
+.btn-primary > span { width: 100%; justify-content: space-between; }
+.btn-primary:hover { background-color: var(--accent-hot); border-color: var(--accent-hot); }
+.btn-primary kbd { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
+.btn-sec { min-height: 54px; font-size: clamp(1.05rem, 1.4vw, 1.3rem); line-height: 1.05; min-width: 0; }
+.controls > * { min-width: 0; }
+.rerolls { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; color: var(--text-2); font-size: 1rem; }
+.rerolls b { font-family: var(--font-display); font-style: italic; font-weight: 900; font-stretch: 62%; font-size: 1.9rem; color: var(--text); }
+.link-btn { background: none; border: 0; padding: 4px 2px; color: var(--text-2); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; font-size: .95rem; }
+.link-btn:hover { color: var(--text); }
+
+/* ===== Historial (kill feed) ===== */
+.history { margin-top: 32px; }
+.sec-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sec-head h2 { margin: 0; font-size: 1.9rem; line-height: 1; }
+.sec-head .rule { flex: 1 1 40px; height: 1px; background: var(--line-strong); min-width: 20px; }
+.confirm { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .95rem; color: var(--text-2); padding: 0 6px; }
+.history ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.feed-row {
+  display: grid; grid-template-columns: 4.2em minmax(0, 1fr); gap: 2px 14px; align-items: center;
+  padding: 8px 14px 8px 12px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 18%, transparent), transparent 45%), var(--panel);
+  border-left: 4px solid var(--rc);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut-sm)) 100%, 0 100%);
+}
+.feed-row.role-tank { --rc: var(--tank); } .feed-row.role-damage { --rc: var(--damage); } .feed-row.role-support { --rc: var(--support); }
+.h-time { font-family: var(--font-mono); font-size: .85rem; color: var(--text-3); }
+.h-hero { display: flex; align-items: center; gap: 8px; font-size: 1.45rem; line-height: 1; white-space: nowrap; }
+.h-tag { display: block; font-family: var(--font-body); font-style: normal; font-stretch: normal; font-weight: 600; font-size: .75rem; letter-spacing: .06em; color: var(--accent); }
+.h-retos { grid-column: 2; display: grid; gap: 2px; min-width: 0; }
+.h-reto { font-size: 1rem; color: var(--text); overflow-wrap: anywhere; line-height: 1.3; }
+.h-reto em { font-style: normal; color: var(--text-3); font-size: .85rem; }
+.empty { color: var(--text-3); font-size: 1rem; }
+.hint { color: var(--text-3); font-size: .9rem; margin: 8px 0 0; }
+.copy-fallback { width: 100%; min-height: 120px; margin-top: 10px; background: var(--bg-deep); border: 1px solid var(--line-strong); border-radius: 0; padding: 10px; font: .9rem/1.4 var(--font-mono); color: var(--text); }
+
+/* ===== Panel de opciones ===== */
+.panel-title { margin: 0 0 4px; font-size: 2.1rem; line-height: 1; }
+.panel-title + .hint { margin: 0 0 6px; }
+.group { border: 0; margin: 0; padding: 14px 0 16px; min-width: 0; }
+.group legend {
+  float: left; width: 100%; padding: 0; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-stretch: 62%;
+  font-size: 1.25rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text);
+}
+.group legend::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
+.group legend + * { clear: both; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px 10px; padding: 0 6px; }
+.chip {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 4px 14px;
+  transform: skewX(var(--skew));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 0;
+  color: var(--text-2); font-weight: 600; font-size: 1rem;
+  box-shadow: inset 0 -3px 0 transparent;
+}
+.chip > span { display: inline-flex; align-items: center; gap: 8px; transform: skewX(var(--unskew)); }
+.chip:hover { background: var(--panel-2); color: var(--text); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: rgba(249, 158, 26, .55); color: var(--text); box-shadow: inset 0 -3px 0 var(--accent); }
+.chip:disabled { opacity: .35; }
+.chip .diff .bars i { width: 6px; height: 12px; }
+.sub-role { margin-top: 6px; }
+.sub-role-name { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); margin: 8px 6px 8px; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 0 6px; }
+.mode-opt { position: relative; display: block; }
+.mode-opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.mode-opt span {
+  display: flex; align-items: center; min-height: 50px; padding: 6px 12px;
+  transform: skewX(var(--skew));
+  background: var(--panel); border: 1px solid var(--line);
+  font-weight: 600; font-size: .98rem; line-height: 1.15; color: var(--text-2);
+}
+.mode-opt span::first-line { color: inherit; }
+.mode-opt input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.mode-opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.checks { display: grid; gap: 2px; }
+.check { display: flex; align-items: center; gap: 14px; padding: 7px 6px; cursor: pointer; font-size: 1.02rem; border-bottom: 1px solid var(--line); }
+.check:last-child { border-bottom: 0; }
+.check input {
+  -webkit-appearance: none; appearance: none; margin: 0 4px 0 2px; flex: none;
+  width: 46px; height: 24px; transform: skewX(var(--skew)); cursor: pointer;
+  border: 1.5px solid var(--line-strong);
+  background: linear-gradient(var(--text-3), var(--text-3)) no-repeat 3px 50% / 17px 14px, var(--bg-deep);
+  transition: background-position .15s;
+}
+.check input:checked {
+  border-color: var(--accent);
+  background: linear-gradient(var(--accent-ink), var(--accent-ink)) no-repeat calc(100% - 3px) 50% / 17px 14px, var(--accent);
+}
+
+.hero-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; padding: 0 6px; }
+.search {
+  flex: 1 1 150px; min-width: 0; min-height: 40px; padding: 6px 12px;
+  background: var(--bg); border: 1px solid var(--line-strong); border-radius: 0;
+  border-bottom: 2px solid var(--blue);
+}
+.hero-list {
+  list-style: none; margin: 0; padding: 6px 10px; max-height: 380px; overflow: auto;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px 10px;
+  background: rgba(0, 0, 0, .2); border: 1px solid var(--line);
+}
+.hero-list li { min-width: 0; }
+.hero-list li.role-tank { --rc: var(--tank); } .hero-list li.role-damage { --rc: var(--damage); } .hero-list li.role-support { --rc: var(--support); }
+.hero-list label {
+  position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 48px; padding: 4px 12px;
+  transform: skewX(var(--skew)); cursor: pointer;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line); border-bottom: 3px solid var(--rc);
+}
+.hero-list label:hover { border-color: var(--line-strong); border-bottom-color: var(--rc); }
+.hero-list label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hero-list input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.hero-list .hn, .hero-list .sub { transform: skewX(var(--unskew)); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero-list .hn { display: flex; align-items: center; gap: 6px; font-size: 1.12rem; line-height: 1.05; color: var(--text); }
+.hero-list .sub { color: var(--text-3); font-size: .78rem; font-weight: 600; }
+.hero-list li.off label { opacity: .42; border-bottom-color: var(--line-strong); }
+.hero-list li.off .hn { text-decoration: line-through; text-decoration-thickness: 2px; }
+.data-ver { color: var(--text-3); font-size: .85rem; margin-top: 16px; }
+.panel-foot { padding: 14px 6px 0; }
+
+/* ===== Barra flotante (modo stream) ===== */
+.stream-bar { position: fixed; right: 20px; bottom: 16px; z-index: 20; display: none; gap: 12px; opacity: .3; transition: opacity .2s; }
+.stream-bar:hover, .stream-bar:focus-within { opacity: 1; }
+.stream-bar .pbtn { background: var(--panel); }
+.stream-bar .pbtn.go { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* ===== Modo stream ===== */
+body.stream .topbar, body.stream .panel, body.stream .history, body.stream .controls, body.stream .wheel-head .in-play-sub { display: none !important; }
+body.stream .stream-bar { display: flex; }
+body.stream .app { grid-template-columns: 1fr; min-height: 100vh; }
+body.stream .stage { display: flex; align-items: center; min-height: 100vh; padding: 24px 36px; }
+body.stream .stage-grid { width: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 44px; }
+body.stream .wheel-wrap { max-width: min(92vh, 100%); }
+body.stream .hero-name { font-size: clamp(3.4rem, 6.6vw, 8rem); }
+body.stream .reel-final { font-size: clamp(1.6rem, 2.7vw, 2.5rem); }
+body.stream.chroma, body.stream.chroma .app, body.stream.chroma .stage { background: var(--chroma); }
+body.stream.chroma .wheel-head, body.stream.chroma .wheel-wrap::before { display: none; }
+
+/* ===== Responsive ===== */
+@media (max-width: 1440px) and (min-width: 1181px) {
+  .btn-primary kbd { display: none; }
+  .btn-primary > span { justify-content: center; }
+}
+@media (max-width: 1180px) {
+  .stage-grid { grid-template-columns: minmax(0, 1fr); }
+  .result-col { max-width: 760px; width: 100%; margin: 0 auto; }
+  .wheel-wrap { max-width: min(580px, 70vh); }
+}
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  #btnPanel { display: inline-flex; }
+  .panel { display: none; border-left: 0; border-bottom: 1px solid var(--line); order: -1; }
+  .panel.open { display: block; }
+  .pbtn .lbl-long { display: none; }
+  body.stream .stage-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+}
+@media (max-width: 480px) {
+  body { font-size: 17px; }
+  :root { --reel-h: 9.4rem; }
+  .eyebrow { font-size: .7rem; }
+  .top-actions { width: 100%; }
+  .top-actions .pbtn { flex: 1 1 auto; padding: 4px 10px; }
+  .controls { grid-template-columns: 1fr; }
+  .btn-primary { font-size: 2.1rem; min-height: 66px; }
+  .btn-primary kbd { display: none; }
+  .modes { grid-template-columns: 1fr; }
+  .reel-row { font-size: 1.15rem; }
+  .feed-row { grid-template-columns: 3.6em minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .result.revealing, .result.revealing::before, .result.revealing .hero-name { animation: none; }
+  * { transition: none !important; }
+}
+</style>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="eyebrow">Modo arcade · Stream</span>
+    <h1 class="disp">Ruleta <span class="de">de</span> retos</h1>
+  </div>
+  <div class="top-actions">
+    <button type="button" class="pbtn sm" id="btnPanel" aria-expanded="false" aria-controls="panel"><span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      Filtros</span></button>
+    <button type="button" class="pbtn sm" id="btnMute" aria-pressed="false"><span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="muteWave" d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>
+      <span id="muteLbl">Sonido</span></span></button>
+    <button type="button" class="pbtn sm" id="btnStream"><span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="5" width="18" height="12"/><path d="M8 21h8"/></svg>
+      <span><span class="lbl-long">Modo </span>stream</span></span></button>
+  </div>
+</header>
+
+<div class="app">
+  <main class="stage" id="stage">
+    <div class="stage-grid">
+      <section class="wheel-col" aria-label="Ruleta de héroes">
+        <div class="wheel-head">
+          <div class="in-play disp"><b id="inPlay">0</b> héroes en juego</div>
+          <div class="in-play-sub" id="inPlaySub"></div>
+        </div>
+        <div class="wheel-wrap" id="wheelWrap">
+          <canvas id="wheel" role="img" aria-label="Ruleta de héroes"></canvas>
+        </div>
+      </section>
+
+      <section class="result-col">
+        <div class="result" id="result" aria-live="polite">
+          <div class="kicker">Héroe seleccionado</div>
+          <div class="hero-name idle" id="heroName">Listos</div>
+          <div class="hero-meta" id="heroMeta"></div>
+          <div class="retos" id="retos">
+            <p class="placeholder">Pulsa <strong>GIRAR</strong> o la <kbd>barra espaciadora</kbd> para empezar.</p>
+          </div>
+        </div>
+        <div class="notice" id="notice" role="status" hidden></div>
+        <div class="controls">
+          <button type="button" class="pbtn btn-primary" id="btnSpin"><span><span>Girar todo</span><kbd>Espacio</kbd></span></button>
+          <button type="button" class="pbtn btn-sec" id="btnReto" aria-disabled="true"><span>Solo re-tirar reto</span></button>
+          <button type="button" class="pbtn btn-sec" id="btnHero" aria-disabled="true"><span>Re-tirar héroe</span></button>
+          <div class="rerolls" id="rerollBox">
+            <span>Re-tiradas</span> <b id="rerollCount">0</b>
+            <button type="button" class="link-btn" id="btnRerollReset">Poner a cero</button>
+          </div>
+        </div>
+
+        <section class="history" aria-labelledby="histTitle">
+          <div class="sec-head">
+            <h2 id="histTitle" class="disp">Historial</h2>
+            <span class="rule" aria-hidden="true"></span>
+            <button type="button" class="pbtn sm" id="btnCopy"><span>Copiar texto</span></button>
+            <button type="button" class="pbtn sm danger" id="btnClear"><span>Vaciar</span></button>
+            <span class="confirm" id="clearConfirm" hidden>
+              ¿Vaciar historial?
+              <button type="button" class="pbtn sm danger" id="btnClearYes"><span>Sí, vaciar</span></button>
+              <button type="button" class="pbtn sm" id="btnClearNo"><span>Cancelar</span></button>
+            </span>
+          </div>
+          <p class="empty" id="histEmpty">Todavía no ha salido nada en esta sesión.</p>
+          <ol id="histList"></ol>
+          <p class="hint" id="copyMsg" role="status"></p>
+          <textarea class="copy-fallback" id="copyFallback" readonly hidden aria-label="Texto del historial para copiar"></textarea>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <aside class="panel" id="panel" aria-label="Filtros y opciones">
+    <h2 class="panel-title disp">Opciones</h2>
+
+    <fieldset class="group">
+      <legend>Modo de reto</legend>
+      <div class="modes" id="modes"></div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Rol</legend>
+      <div class="chips" id="roleChips"></div>
+    </fieldset>
+
+    <fieldset class="group" id="subroleGroup">
+      <legend>Subrol</legend>
+      <div id="subroleChips"></div>
+      <p class="hint">Sin ninguno marcado en un rol, entran todos los de ese rol.</p>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Dificultad</legend>
+      <div class="chips" id="diffChips"></div>
+    </fieldset>
+
+    <fieldset class="group" id="catGroup">
+      <legend>Retos generales</legend>
+      <div class="chips" id="catChips"></div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Reglas</legend>
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="optNoRepHero"> No repetir héroe hasta que salgan todos</label>
+        <label class="check"><input type="checkbox" id="optNoRepReto"> No repetir reto</label>
+        <label class="check"><input type="checkbox" id="optCount"> Contar re-tiradas</label>
+        <label class="check"><input type="checkbox" id="optChroma"> Fondo verde croma en modo stream</label>
+        <label class="check"><input type="checkbox" id="optFull"> Pantalla completa al entrar en modo stream</label>
+      </div>
+      <button type="button" class="link-btn" id="btnResetRound">Reiniciar rondas (héroes y retos ya salidos)</button>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Héroes</legend>
+      <div class="hero-tools">
+        <label class="sr-only" for="heroSearch">Buscar héroe</label>
+        <input type="search" class="search" id="heroSearch" placeholder="Buscar héroe…" autocomplete="off">
+        <button type="button" class="pbtn sm" id="btnAll"><span>Todos</span></button>
+        <button type="button" class="pbtn sm" id="btnNone"><span>Ninguno</span></button>
+      </div>
+      <ul class="hero-list" id="heroList"></ul>
+      <p class="hint" id="heroListHint"></p>
+    </fieldset>
+
+    <div class="panel-foot">
+      <button type="button" class="pbtn sm" id="btnResetFilters"><span>Restablecer filtros</span></button>
+      <p class="data-ver" id="dataVer"></p>
+    </div>
+  </aside>
+</div>
+
+<div class="stream-bar" aria-label="Controles del modo stream">
+  <button type="button" class="pbtn sm go" id="sbSpin"><span>Girar</span></button>
+  <button type="button" class="pbtn sm" id="sbReto"><span>Re-tirar reto</span></button>
+  <button type="button" class="pbtn sm" id="sbExit"><span>Salir (Esc)</span></button>
+</div>
+
+<script id="ow-data">window.OW_DATA = {
+  version: "2026-09",
+  subroles: {"tank":["Fuerte","Iniciador","Valeroso"],"damage":["En el blanco","Flanqueador","Especialista","Reconocimiento"],"support":["Estratega","Médico","Superviviente"]},
+  heroes: [
+    { id: "dmon", name: "D.Mon", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Cada vez que te revienten el meka y salgas a pie, tienes que conseguir una baja con la ametralladora antes de volver a llamar al meka con el ulti.", d: 3},
+      {t: "Surging Strike solo vale si empotras a alguien contra una pared. Cada Surging Strike al aire: 3 sentadillas al acabar la ronda.", d: 2},
+      {t: "Prohibido usar Fusion Repeater: solo puedes pegar con el Plasma Saber y las habilidades. Modo samurái de verdad.", d: 2},
+      {t: "Tu Limit Break tiene que pillar a 3 o más enemigos. Si pilla a menos, el chat elige tu próxima ventaja.", d: 3},
+      {t: "Cada vez que uses Propulsors tienes que gritar «¡BUSAN!» por el micro. Si se te olvida, 1 trago de agua.", d: 1},
+      {t: "Mantén Power Barrier levantada al menos 5 segundos seguidos en cada pelea de equipo antes de soltarla. El chat lleva la cuenta.", d: 1},
+      {t: "Gana un 1v1 contra el tanque enemigo usando solo el Plasma Saber y Surging Strike.", d: 3},
+      {t: "Solo puedes coger la ventaja menor Beast Within y tienes que curar tu escudo al menos 3 veces seguidas a espadazos en una pelea.", d: 2},
+      {t: "Juega toda la partida siendo el primero en entrar a cada pelea: ningún compañero puede pasar delante de tu barrera.", d: 2},
+      {t: "Cada baja con el Plasma Saber se celebra con el emote de victoria o un spray en el cadáver.", d: 1},
+      {t: "Tras usar el ulti, tienes que hacer Surging Strike en los 3 segundos siguientes a alguien marcado por el daño amplificado.", d: 2},
+      {t: "Prohibido retroceder con Propulsors: solo puedes usarlos hacia delante o de lado.", d: 2},
+      {t: "Antes de cada pelea, apunta con el sable al equipo enemigo y usa la línea de voz de «¡Vamos!». Sin ritual no hay carga.", d: 1},
+      {t: "Cada vez que te sacan del meka tienes que decir una frase de pro gamer coreana inventada por el chat.", d: 1}
+    ] },
+    { id: "dva", name: "D.Va", role: "tank", subrole: "Iniciador", retos: [
+      {t: "Cada Autodestrucción tiene que llevarse al menos una baja. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Grita «¡NERF THIS!» por el micro antes de cada Autodestrucción, al mismo tiempo que la voz del juego.", d: 1},
+      {t: "Antes de volar a por un enemigo, ponle un spray a sus pies y dile «¡GG!» por la línea de voz. Luego a por él.", d: 2},
+      {t: "Consigue una baja con la pistola de D.Va a pie después de que te revienten el meka.", d: 2},
+      {t: "Llama al meka encima de un enemigo y mátalo aplastándolo. El chat da permiso para gritar como en un torneo.", d: 3},
+      {t: "Solo puedes volar con Propulsores hacia la backline enemiga: prohibido usarlos para huir hacia tu equipo.", d: 2},
+      {t: "Cada pelea empieza con tu Propulsor contra el jugador más alejado del equipo enemigo.", d: 2},
+      {t: "Toda la partida sin usar los Micromisiles. Solo cañones de fusión y matriz.", d: 1},
+      {t: "Cada vez que la matriz te salve a un compañero de morir, tienes que decir «de nada, bebé» en el chat de voz.", d: 1},
+      {t: "Mantén la Matriz defensiva encendida hasta vaciarla del todo en cada pelea: ni un segundo de recurso desperdiciado.", d: 1},
+      {t: "Usa la Autodestrucción como zona: tiene que echar a todo el equipo enemigo del punto sin necesidad de matar.", d: 2},
+      {t: "Pasa 10 segundos en el aire seguidos a base de propulsores y cancelaciones para aprovechar la pasiva de Iniciador.", d: 2},
+      {t: "Tras cada baja en el meka, haz el emote o la pose de «victoria» de D.Va encima del cadáver antes de seguir.", d: 1},
+      {t: "Consigue 3 bajas en una misma vida sin salir del meka ni una vez.", d: 3}
+    ] },
+    { id: "domina", name: "Domina", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Cada Sonic Repulsors tiene que empotrar a alguien contra una pared para aturdirlo. Cada fallo: 5 flexiones.", d: 2},
+      {t: "Panopticon tiene que encerrar al menos a 2 enemigos. Si solo pillas a uno, el chat elige tu mira durante 2 minutos.", d: 3},
+      {t: "Tank de poke de verdad: prohibido pisar más allá de la mitad del mapa hasta que tu equipo tenga la primera baja.", d: 2},
+      {t: "Mueve tu Barrier Array a una posición nueva en cada pelea y avisa por el micro a dónde la mueves antes de hacerlo.", d: 1},
+      {t: "Detona la Crystal Charge justo encima de un support enemigo y mátalo con el siguiente disparo del Photon Magnum.", d: 3},
+      {t: "Juega con aire de villana élite: cada baja tienes que decir «insignificante» con tu mejor voz de jefa de Talon.", d: 1},
+      {t: "Consigue un combo Repulsors contra la pared + Crystal Charge sobre el aturdido.", d: 2},
+      {t: "Tu barrera no puede romperse nunca: si te la rompen entera, un trago de agua cada vez.", d: 2},
+      {t: "Aprovecha la pasiva: recupera escudos a base de habilidades y di en voz alta cuántas veces te salva la vida.", d: 1},
+      {t: "Solo puedes disparar el Photon Magnum a cargo completo: nada de tiros sueltos a media distancia.", d: 2},
+      {t: "Tras cada Panopticon, pon un spray delante de la prisión y di «bienvenidos a mi colección».", d: 1},
+      {t: "Encierra al tanque enemigo con Panopticon y que tu equipo lo mate dentro.", d: 3},
+      {t: "Toda la partida en tercera línea de tu equipo tras la barrera: ningún aliado puede estar detrás de ti.", d: 2}
+    ] },
+    { id: "doomfist", name: "Doomfist", role: "tank", subrole: "Iniciador", retos: [
+      {t: "Cada Puño cohete tiene que estampar a alguien contra la pared. Puño al aire o sin pared: 5 flexiones.", d: 2},
+      {t: "Consigue el puño cargado con Bloqueo de poder en cada pelea y grítalo cuando lo tengas.", d: 2},
+      {t: "Mata a un support enemigo con Meteoro directo en el centro. Nada de rozar, impacto limpio.", d: 3},
+      {t: "Prohibido disparar la Mano cañón: solo puños, golpe sísmico y meteoro.", d: 2},
+      {t: "Cada vez que entres a la backline tienes que salir vivo. Si mueres dentro, bebe agua y di «el mejor de todos los tiempos» con voz derrotada.", d: 2},
+      {t: "Antes de lanzarte a por un support enemigo, ponle un spray a sus pies y salúdalo con la línea de voz «Hola». Luego, puñetazo.", d: 2},
+      {t: "Usa Meteoro solo para escapar: nunca para hacer daño. Si matas con él, cuenta igual, pero no puedes buscarlo.", d: 1},
+      {t: "Antes de cada puño cargado, di en voz alta a quién se lo vas a dar. Si le das a otro, cambia la sensibilidad +10%.", d: 2},
+      {t: "Golpe sísmico, puño cohete y remate en menos de 3 segundos al mismo objetivo: el combo clásico, tres veces en la partida.", d: 3},
+      {t: "Durante toda la partida, tras cada baja tienes que cantar «I am Doomfist» en inglés macarrónico.", d: 1},
+      {t: "Prohibido atacar al tanque enemigo: solo puedes pegar a daño y apoyo.", d: 2},
+      {t: "Empotra a dos enemigos a la vez contra la misma pared con un solo Puño cohete.", d: 3},
+      {t: "El chat elige tus dos ventajas (menor y mayor) en cuanto se desbloqueen, sin opción a quejarte.", d: 1}
+    ] },
+    { id: "hazard", name: "Hazard", role: "tank", subrole: "Iniciador", retos: [
+      {t: "Cada Jagged Wall tiene que empujar a alguien. Muro que no pilla a nadie: 5 sentadillas.", d: 2},
+      {t: "Tu Downpour tiene que atrapar a 3 o más enemigos. Si pilla menos, el chat decide tu siguiente ventaja.", d: 3},
+      {t: "Aguanta con Spike Guard en mitad del equipo enemigo hasta vaciar el recurso y sal vivo.", d: 2},
+      {t: "Solo puedes entrar a las peleas con Violent Leap por encima del enemigo, nunca andando.", d: 2},
+      {t: "Empuja a dos enemigos a la vez con la misma Jagged Wall.", d: 2},
+      {t: "Cada vez que uses Violent Leap tienes que gritar «¡PINCHOS!»", d: 1},
+      {t: "Escala una pared con la movilidad de Hazard y cae encima de la backline enemiga en la primera pelea de cada ronda.", d: 2},
+      {t: "Mantén Spike Guard hasta que se te vacíe el recurso una vez por pelea: modo erizo total.", d: 1},
+      {t: "Consigue una baja con los pinchos de Spike Guard, sin disparar.", d: 3},
+      {t: "Prohibido usar el arma principal cuando el enemigo esté a más de 10 metros: solo escopetazo a quemarropa.", d: 2},
+      {t: "Tras cada Downpour, di el nombre de todos los que has pillado antes de que acabe el efecto.", d: 1},
+      {t: "Consigue que tu equipo mate a todos los atrapados en tu Downpour (team wipe desde tu ulti).", d: 3},
+      {t: "Cada vez que ganéis una pelea, escala la pared más alta cerca del objetivo y haz un emote arriba.", d: 1}
+    ] },
+    { id: "junker-queen", name: "Junker Queen", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Cada vez que recuperes el Cuchillo dentado con un enemigo pegado, tienes que decir «ven con mamá».", d: 1},
+      {t: "Masacre tiene que pillar a 2 enemigos o más cada vez. Si pilla a uno, 5 flexiones.", d: 2},
+      {t: "Estampida tiene que herir a 3 enemigos o más. Si no, el chat te pone la sensibilidad a su gusto un minuto.", d: 3},
+      {t: "Grito de mando solo cuando tu equipo esté a punto de entrar: avisa «¡A POR ELLOS!» antes de cada uno.", d: 1},
+      {t: "Mata a alguien trayéndolo con el cuchillo a su muerte (tirón + remate con escopeta o hacha).", d: 2},
+      {t: "Solo puedes tirar el cuchillo a supports. Nada de tanques ni daños.", d: 2},
+      {t: "Toda la partida hablando como reina de Junkertown: acento macarra y amenazas cada vez que alguien te cure.", d: 1},
+      {t: "Consigue 3 bajas en una misma Estampida + remate.", d: 3},
+      {t: "Prohibido retroceder a curarte: solo te curas por las heridas de tus golpes y los supports.", d: 2},
+      {t: "Pesca con el cuchillo a un enemigo que esté fuera de tu línea de visión y remátalo.", d: 3},
+      {t: "Cada Masacre que no hiera a nadie: bebe agua.", d: 1},
+      {t: "Salva a un aliado con Grito de mando justo cuando está a punto de morir; el chat lo valida.", d: 2},
+      {t: "Tras ganar cada pelea, sube al objetivo, haz el emote más macarra que tengas y proclama «¡Aquí manda la reina!».", d: 1}
+    ] },
+    { id: "mauga", name: "Mauga", role: "tank", subrole: "Fuerte", retos: [
+      {t: "Enciende al enemigo con una ametralladora y remátalo con la otra: cada baja tiene que tener enemigo ardiendo.", d: 1},
+      {t: "Jaula de combate tiene que dejar dentro al menos a 3 enemigos. Si no, 10 sentadillas.", d: 3},
+      {t: "Usa Carga imparable para derribar a 2 enemigos en una misma carga.", d: 3},
+      {t: "Sobrecarga cardíaca tiene que salvar a un compañero que está a punto de morir. Grita «¡CORAZÓN!» al activarla.", d: 2},
+      {t: "Toda la partida disparando solo con una ametralladora (un solo botón de fuego).", d: 2},
+      {t: "Cada vez que mates a alguien, tienes que reírte como Mauga. Si el chat no lo oye, no cuenta.", d: 1},
+      {t: "Cada vez que ganéis una pelea, haz un emote de baile en el objetivo. Mauga es el alma de la fiesta.", d: 1},
+      {t: "Prohibido dejar de disparar más de 3 segundos cuando haya enemigos a la vista. Modo gatillo fácil.", d: 1},
+      {t: "Dentro de tu Jaula, gana el 1v1 contra el tanque enemigo.", d: 3},
+      {t: "Carga imparable siempre hacia delante y hacia el enemigo; nunca para retirarte.", d: 2},
+      {t: "Juega en el centro del objetivo cada vez que haya punto. Si lo pisas antes que nadie, el chat aplaude.", d: 1},
+      {t: "Sobrevive a una pelea entera sin retroceder gracias solo a Sobrecarga cardíaca y di «esto me hace cosquillas».", d: 2}
+    ] },
+    { id: "orisa", name: "Orisa", role: "tank", subrole: "Fuerte", retos: [
+      {t: "Cada Jabalina de energía tiene que empotrar a alguien contra una pared. Cada fallo: 3 flexiones.", d: 2},
+      {t: "Aturde a un enemigo con la jabalina y remátalo antes de que se levante.", d: 2},
+      {t: "Corazón de la tierra (ulti) cargado a tope: no puedes soltarlo antes del máximo nunca.", d: 2},
+      {t: "Activa Fortificar solo cuando estés por debajo de la mitad de vida y avisa en voz alta «¡AGUANTANDO!».", d: 2},
+      {t: "Pilla a 3 enemigos a la vez con Giro de jabalina empujándolos hacia atrás.", d: 3},
+      {t: "Toda la partida sin disparar el Aumentador fusión hasta que se sobrecaliente: suelta el gatillo antes del máximo.", d: 2},
+      {t: "Cada vez que actives Fortificar, di «Fortificando, bleep bloop».", d: 1},
+      {t: "Consigue una baja rematando con la jabalina a alguien que huye con poca vida.", d: 3},
+      {t: "Juega como caballo: toda la partida cargando hacia el enemigo con Giro de jabalina en cada pelea.", d: 1},
+      {t: "Protege a tu support con el Giro de jabalina, poniéndote delante de él al menos 3 veces en la partida.", d: 2},
+      {t: "Tu ulti tiene que pillar mínimo a 3 enemigos. Si pilla menos, 10 sentadillas.", d: 2},
+      {t: "Juega con la ventaja Heavy Javelin (mayor) siempre que salga y empotra a alguien con daño de pared.", d: 1},
+      {t: "Al empezar cada ronda, haz el emote de Orisa delante de tu equipo y di «protocolo de defensa activado».", d: 1}
+    ] },
+    { id: "ramattra", name: "Ramattra", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Aniquilación tiene que durar al menos 10 segundos gracias a mantener enemigos dentro. El chat cronometra.", d: 3},
+      {t: "Pon Vórtice voraz debajo del equipo enemigo y que tu equipo mate a alguien dentro del charco.", d: 2},
+      {t: "Solo puedes pegar en Forma némesis cuando estés a menos de 5 metros. Nada de puñetazos al aire.", d: 2},
+      {t: "Tras cada baja, di algo filosófico sobre los ómnicos y la humanidad con voz de profeta.", d: 1},
+      {t: "Barrera del vacío solo para salvar a compañeros, nunca para ti mismo.", d: 2},
+      {t: "Entra en Forma némesis con los brazos cruzados (bloqueo) y aguanta en primera línea hasta que se acabe.", d: 2},
+      {t: "Prohibido usar el bastón en forma ómnica para matar: todas las bajas tienen que ser a puñetazos.", d: 2},
+      {t: "Consigue que el vórtice mate a alguien directamente (remate con el vórtice).", d: 3},
+      {t: "Tu Aniquilación tiene que empezar en cuanto cambies a Forma némesis y cerrar una pelea entera.", d: 2},
+      {t: "Cada vez que uses Forma némesis tienes que tararear algo épico.", d: 1},
+      {t: "Aguanta la línea de frente entera sin retroceder durante la primera pelea de cada ronda.", d: 1},
+      {t: "Consigue 3 bajas en una misma Forma némesis.", d: 3},
+      {t: "Tras cada victoria de pelea, haz un spray en el objetivo y declara el punto «territorio del Sector Nulo».", d: 1}
+    ] },
+    { id: "reinhardt", name: "Reinhardt", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Cada vez que cargues con Carga, tienes que gritar el nombre del enemigo que te llevas. Si no lo empotras contra una pared, 5 flexiones al acabar.", d: 2},
+      {t: "Seísmo tiene que tumbar a 3 o más enemigos. Si tumba a menos, el chat elige la próxima ventaja.", d: 3},
+      {t: "Grita «¡HAMMER DOWN!» o «¡TIERRA, TIEMBLA!» en cada Seísmo, a la vez que la voz del juego.", d: 1},
+      {t: "Prohibido levantar la barrera más de 3 segundos seguidos. Rein agresivo de verdad.", d: 2},
+      {t: "Antes de cada pelea, golpea el suelo con el martillo mirando al enemigo y usa la línea de voz de reto. Duelo de honor.", d: 1},
+      {t: "Gana el 1v1 contra el tanque enemigo sin levantar la barrera.", d: 3},
+      {t: "Golpe de fuego doble: pilla a 2 enemigos con el mismo Golpe de fuego, 3 veces en la partida.", d: 2},
+      {t: "Todo lo que digas por el micro tiene que ser en tono caballeresco y medieval, llamando «honor» a todo.", d: 1},
+      {t: "Cancela una Carga a mitad de camino para no pasarte de largo y sigue pegando. El chat decide si fue limpio.", d: 2},
+      {t: "Barrera solo para proteger a tus supports: si la levantas para ti mismo con un support detrás lejos, bebe agua.", d: 2},
+      {t: "Mata a un support enemigo con el martillo en su backline.", d: 2},
+      {t: "Tras cada Seísmo que no tumbe a nadie, di «perdonad, estoy mayor».", d: 1},
+      {t: "Consigue un Seísmo + Carga al mismo enemigo tumbado para matarlo.", d: 2}
+    ] },
+    { id: "roadhog", name: "Roadhog", role: "tank", subrole: "Fuerte", retos: [
+      {t: "Cada gancho tiene que traer a alguien a su muerte. Gancho fallado: 3 flexiones.", d: 2},
+      {t: "Engancha a un support enemigo y mátalo antes de que tu equipo le toque.", d: 3},
+      {t: "Engancha a un enemigo mientras tú estás en el aire (salta antes del gancho). Tres veces en la partida.", d: 3},
+      {t: "Toda la partida sin usar el respiro (curación) delante de un enemigo: solo te curas detrás de una esquina.", d: 2},
+      {t: "Tras cada gancho acertado, di «¡VEN AQUÍ!» por el micro.", d: 1},
+      {t: "Tu ulti tiene que echar a 2 enemigos del objetivo o matar a uno.", d: 2},
+      {t: "Juega como cerdo solitario: flanquea y engancha desde un lado en cada pelea, nunca desde el frente.", d: 2},
+      {t: "Engancha a alguien desde más lejos que tu equipo entero y tráelo hasta ellos.", d: 3},
+      {t: "Cada Pig Pen tiene que colocarse justo en la salida del spawn enemigo o en un pasillo de flanqueo, y tiene que atrapar a alguien.", d: 2},
+      {t: "Engancha al mismo enemigo 3 veces en la partida y dile algo cariñoso por el chat de texto.", d: 1},
+      {t: "Salva a un aliado enganchando al enemigo que lo está rematando.", d: 2},
+      {t: "Después de cada baja con gancho, haz un spray de cerdito o el más feo que tengas en el sitio del crimen.", d: 1}
+    ] },
+    { id: "sigma", name: "Sigma", role: "tank", subrole: "Valeroso", retos: [
+      {t: "Flujo gravitatorio tiene que levantar a 3 o más enemigos. Si levanta menos, 10 sentadillas.", d: 3},
+      {t: "Lanza Acreción siempre desde el aire flotando: prohibido tirarla con los pies en el suelo.", d: 2},
+      {t: "Absorbe daño con Agarre cinético hasta llenar un buen escudo y di cuánto has tragado.", d: 2},
+      {t: "Cada vez que uses Agarre cinético, tararea una melodía. Sigma adora la música de las esferas.", d: 1},
+      {t: "Deja caer a todos los atrapados por Flujo gravitatorio y remata a uno con Acreción antes de que se levante.", d: 3},
+      {t: "Solo puedes lanzar la Barrera experimental más allá de la mitad del camino entre tu equipo y el enemigo: barrera ofensiva.", d: 2},
+      {t: "Toda la partida hablando como un científico despistado que habla con el universo.", d: 1},
+      {t: "Consigue una baja rematando con Acreción.", d: 2},
+      {t: "Prohibido recuperar la barrera antes de que se rompa: una vez lanzada, se queda donde está.", d: 2},
+      {t: "Consigue una baja con las Hiperesferas rebotando en una pared, sin línea de visión directa.", d: 3},
+      {t: "Antes de cada pelea, flota un momento mirando al cielo y di «el universo canta». Luego al lío.", d: 1},
+      {t: "Cada Acreción que falle: bebe agua.", d: 1}
+    ] },
+    { id: "winston", name: "Winston", role: "tank", subrole: "Iniciador", retos: [
+      {t: "Cada Salto propulsado tiene que caer encima de la backline enemiga, nunca en el frente.", d: 2},
+      {t: "Con Rabia primigenia, empuja a 3 enemigos distintos lejos del objetivo.", d: 3},
+      {t: "Grita «¿Crema de cacahuete?» cada vez que actives Rabia primigenia.", d: 1},
+      {t: "Cuando mates a alguien, dile algo de ciencia por el chat de texto.", d: 1},
+      {t: "Antes de saltar a por un enemigo, ponle un spray a sus pies y salúdalo con la línea de voz «Hola». Después, rayo.", d: 2},
+      {t: "Tu barrera tiene que caer encima de un aliado en peligro al menos 3 veces en la partida para salvarle.", d: 2},
+      {t: "Toda la partida sin usar el disparo cargado secundario del cañón tesla: solo el chorro de electricidad.", d: 2},
+      {t: "Dive en solitario a un support enemigo y mátalo sin ayuda.", d: 3},
+      {t: "Durante Rabia primigenia, echa del objetivo a 3 enemigos.", d: 3},
+      {t: "Tras cada salto, pon la barrera en el sitio donde aterrizas antes de disparar. Siempre, sin excepción.", d: 2},
+      {t: "Toda la partida tienes que saltar sobre el enemigo al menos una vez por cada respawn.", d: 1},
+      {t: "Entra, mata, y vuelve con salto a tu equipo sin morir: 3 veces en la partida.", d: 3}
+    ] },
+    { id: "wrecking-ball", name: "Wrecking Ball", role: "tank", subrole: "Iniciador", retos: [
+      {t: "Cada Machaque (Piledriver) tiene que levantar a 2 o más enemigos. Si solo pilla a uno, 5 flexiones.", d: 2},
+      {t: "Antes de cada entrada, ponle un spray al enemigo al que vas a arrollar y chilla como un hámster por el micro.", d: 2},
+      {t: "Campo de minas tiene que conseguir al menos una baja.", d: 2},
+      {t: "Pasa toda la partida en modo bola salvo para disparar: si te quedas en modo hámster más de 5 segundos, bebe agua.", d: 2},
+      {t: "Cada vez que mueras, di «Hammond está triste» con voz de hámster.", d: 1},
+      {t: "Usa el garfio para dar vueltas alrededor de un poste y derribar a 3 enemigos del tirón.", d: 3},
+      {t: "Entre peleas, haz una ronda por los packs de vida del lado enemigo del mapa y cógelos todos aunque vayas a tope de vida.", d: 1},
+      {t: "Consigue que Escudos adaptativos te salve en medio del equipo enemigo y sal vivo.", d: 2},
+      {t: "Prohibido tocar el objetivo en tu primera vida: tienes que molestar a la backline antes.", d: 2},
+      {t: "Machaque encima de un support enemigo y remátalo antes de que se levante.", d: 3},
+      {t: "Tu Campo de minas tiene que caer siempre encima del objetivo (punto o carga), nunca en otro sitio.", d: 2},
+      {t: "Cada vez que hagas un gran rebote sin garfio, di «¡BOING!»", d: 1}
+    ] },
+    { id: "zarya", name: "Zarya", role: "tank", subrole: "Fuerte", retos: [
+      {t: "Bomba de gravitones tiene que pillar a 3 o más enemigos. Si pilla menos, 10 sentadillas.", d: 3},
+      {t: "Consigue la energía al 100% al menos 3 veces en la partida. Grita «¡CIEN!» cada vez.", d: 2},
+      {t: "Solo puedes dar la Barrera proyectada a quien esté a punto de morir: cada una tiene que salvar una vida.", d: 2},
+      {t: "Tras cada Barrera de partículas, di algo motivador en ruso de mentira.", d: 1},
+      {t: "Consigue que tu equipo mate a 2 o más enemigos dentro de tu Bomba de gravitones.", d: 3},
+      {t: "Prohibido usar el disparo secundario (bolas): solo el rayo.", d: 2},
+      {t: "Cada vez que ganéis una pelea, haz el emote de flexionar músculos o de pesas en el objetivo.", d: 1},
+      {t: "Consigue una baja con las bolas del disparo secundario rebotando en el suelo, sin usar el rayo.", d: 2},
+      {t: "Cada burbuja que caduque sin absorber nada: bebe agua.", d: 1},
+      {t: "Gana el 1v1 contra el tanque enemigo a alta energía.", d: 3},
+      {t: "Toda la partida hablando de pesas y de levantar más peso que el enemigo.", d: 1},
+      {t: "Antes de cada Bomba de gravitones, avisa al equipo con un ping y una cuenta atrás de 3 por el micro. Sin cuenta atrás, no hay bomba.", d: 2}
+    ] },
+    { id: "anran", name: "Anran", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Cada baja tiene que ser de un enemigo que esté ardiendo por tu pasiva Ignición. Si matas a alguien sin quemar, no cuenta.", d: 2},
+      {t: "Usa Vermillion Revival para volver de la muerte y consigue una baja en los 5 segundos siguientes.", d: 3},
+      {t: "Mete Dancing Blaze en mitad del equipo enemigo, esquiva todo y sal viva con al menos una baja.", d: 3},
+      {t: "Cada Inferno Rush tiene que chocar contra un enemigo. Rush al aire: 3 flexiones.", d: 2},
+      {t: "Grita «¡FUEGO!» cada vez que uses Fan the Flames para rematar.", d: 1},
+      {t: "Vermillion Ascent tiene que prender a 3 enemigos o más a la vez.", d: 3},
+      {t: "Juega con abanicos de verdad: prohibido disparar desde más de 15 metros.", d: 2},
+      {t: "Guarda el ulti para usarlo muerta: toda la partida solo puedes usar Vermillion Revival, nunca Ascent.", d: 2},
+      {t: "Quema a todo el equipo enemigo a la vez al menos una vez en la partida (5 enemigos ardiendo).", d: 3},
+      {t: "Aprovecha la pasiva Flanqueador: cada vez que vayas a por un pack de vida, dilo en voz alta y di cuánto te ha curado.", d: 1},
+      {t: "Antes de flanquear, ponle un spray a los pies de tu objetivo y abanícate con el emote o la línea de voz. Después, fuego.", d: 2},
+      {t: "Tras cada baja, haz una pose con el emote o spray. Estilo de bailarina de fuego.", d: 1}
+    ] },
+    { id: "ashe", name: "Ashe", role: "damage", subrole: "En el blanco", retos: [
+      {t: "Cada dinamita tiene que explotar de un disparo en el aire, nunca al tocar el suelo. Dinamita que cae sola: 3 sentadillas.", d: 2},
+      {t: "Bob tiene que conseguir una baja por su cuenta en cada invocación.", d: 2},
+      {t: "Usa la Escopeta para empujar a un enemigo y remátalo en el aire antes de que caiga.", d: 3},
+      {t: "Solo puedes disparar sin apuntar (desde la cadera). Prohibido el zoom toda la partida.", d: 3},
+      {t: "Cada vez que actives a Bob grita «¡BOB, HAZ ALGO!» a la vez que Ashe.", d: 1},
+      {t: "Cada vez que Bob termine su carga, ponte a su lado y haz un emote juntos antes de que desaparezca.", d: 1},
+      {t: "Usa la Escopeta solo para subir a posiciones altas, nunca para escapar hacia atrás.", d: 2},
+      {t: "Bob tiene que cargar al menos 3 enemigos y derribarlos.", d: 3},
+      {t: "Remata a alguien quemado por la dinamita con un tiro a la cabeza con zoom.", d: 2},
+      {t: "Toda la partida hablando como jefa de banda de Deadlock: cada muerte de tu equipo es «un inútil menos».", d: 1},
+      {t: "Consigue 3 tiros a la cabeza seguidos con zoom sin fallar ninguno.", d: 3},
+      {t: "Tras cada baja con zoom, haz girar el rifle (inspeccionar arma o emote) antes de volver a apuntar.", d: 1}
+    ] },
+    { id: "bastion", name: "Bastion", role: "damage", subrole: "Especialista", retos: [
+      {t: "Solo puedes activar la Configuración: Asalto cuando al menos 3 enemigos estén a la vista.", d: 2},
+      {t: "Cada Configuración: Artillería tiene que conseguir mínimo una baja. Si no, 5 flexiones.", d: 2},
+      {t: "Usa la granada táctica A-36 para hacer rocket jump y llegar a una posición alta. Tres veces en la partida.", d: 1},
+      {t: "Tras cada baja, di un «bip-bup» emocionado por el micro.", d: 1},
+      {t: "Gana un 1v1 solo con el modo reconocimiento, sin transformarte.", d: 2},
+      {t: "Tu artillería tiene que caer encima de al menos 2 enemigos a la vez.", d: 3},
+      {t: "Prohibido transformarte en el objetivo: solo en torres o flancos.", d: 2},
+      {t: "Consigue 3 bajas en una sola Configuración: Asalto.", d: 3},
+      {t: "Toda la partida sin tocar la granada. Solo pium pium.", d: 1},
+      {t: "Al respawnear, busca un pájaro, planta o flor del mapa y quédate mirándolo 3 segundos antes de ir a la pelea.", d: 1},
+      {t: "Consigue una baja con la granada rebotando en una pared.", d: 2},
+      {t: "Mata con la granada a alguien que va huyendo con poca vida.", d: 2}
+    ] },
+    { id: "cassidy", name: "Cassidy", role: "damage", subrole: "En el blanco", retos: [
+      {t: "Grita «Es mediodía...» antes de cada Dead Eye. Si Dead Eye no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Solo puedes matar con el revólver apuntando: prohibido Abanico del martillo para rematar.", d: 2},
+      {t: "Aturde con Flashbang a un enemigo a menos de 5 metros y remátalo con un disparo a la cabeza.", d: 2},
+      {t: "Dead Eye tiene que matar al menos a 2 enemigos a la vez.", d: 3},
+      {t: "Toda la partida con acento de vaquero: «forastero», «partner» y «ajá» en cada frase.", d: 1},
+      {t: "Antes de cada duelo, ponle un spray a tu rival a los pies y dale 3 segundos de cortesía antes de disparar. Duelo del Oeste.", d: 3},
+      {t: "Cada vez que ganes un 1v1, pon un spray sobre el cadáver como cartel de «Se busca» y anuncia la recompensa por el micro.", d: 1},
+      {t: "Prohibido rodar hacia atrás: solo puedes rodar de lado o hacia delante.", d: 2},
+      {t: "Consigue un cargador entero sin fallar un solo tiro (6 de 6).", d: 3},
+      {t: "Cada vez que mueras, di «esta ciudad no es lo bastante grande para los dos».", d: 1},
+      {t: "Aguanta en un ángulo con buena línea de visión toda la primera pelea de cada ronda sin moverte de él.", d: 1},
+      {t: "Usa el ulti solo para obligar a los enemigos a esconderse y que tu equipo tome el punto.", d: 2}
+    ] },
+    { id: "echo", name: "Echo", role: "damage", subrole: "Reconocimiento", retos: [
+      {t: "Duplica al tanque enemigo y consigue una baja con su ulti.", d: 2},
+      {t: "Duplica a un support enemigo y usa su ulti para ganar la pelea.", d: 2},
+      {t: "Toda la partida en el aire: si tocas el suelo más de 3 segundos seguidos, bebe agua.", d: 2},
+      {t: "Cada Rayo concentrado tiene que rematar a alguien por debajo de la mitad de vida.", d: 2},
+      {t: "Consigue una baja con Rayo concentrado sin tocar el suelo desde que saliste del spawn.", d: 3},
+      {t: "Duplica y consigue 3 bajas o más con el ulti copiado.", d: 3},
+      {t: "Tras cada Duplicar, habla como el héroe que has copiado hasta que se acabe.", d: 1},
+      {t: "Solo puedes usar Vuelo para entrar, nunca para huir.", d: 2},
+      {t: "Consigue que las Bombas adhesivas maten a dos a la vez.", d: 2},
+      {t: "Planea desde lo más alto del mapa hasta el objetivo sin tocar el suelo.", d: 1},
+      {t: "Duplica siempre al enemigo que más te ha matado. Dilo en voz alta antes de duplicar.", d: 2},
+      {t: "Cada vez que duplicas, di «¡copiando!» y cómo te sientes en ese héroe.", d: 1}
+    ] },
+    { id: "emre", name: "Emre", role: "damage", subrole: "Especialista", retos: [
+      {t: "Todas tus bajas tienen que ser con Siphon Blaster: el rifle solo sirve para bajar vida.", d: 2},
+      {t: "Override Protocol tiene que conseguir mínimo 2 bajas. Si no, 10 sentadillas.", d: 3},
+      {t: "Cada Cyber Frag tiene que rebotar al menos una vez en pared antes de pillar a alguien.", d: 2},
+      {t: "Juega de run-and-gun: prohibido quedarte quieto más de 2 segundos seguidos disparando.", d: 2},
+      {t: "Consigue 3 bajas seguidas aprovechando la recarga rápida de la pasiva Especialista sin recargar manual.", d: 3},
+      {t: "Mata con Cyber Frag a alguien que huye con poca vida.", d: 2},
+      {t: "Tras cada baja, di «protocolo completado» con voz de ciborg.", d: 1},
+      {t: "Usa Take Aim en todos los disparos del rifle: toda la partida con zoom.", d: 2},
+      {t: "Recupera vida con Siphon Blaster y sobrevive a un 1v1 que parecía perdido.", d: 2},
+      {t: "Gana un duelo a larga distancia usando solo Take Aim y ráfagas del Synthetic Burst Rifle.", d: 3},
+      {t: "Cada vez que tu pasiva Altered Vitals te salve, di «otra vez de vuelta».", d: 1},
+      {t: "Override Protocol: mata a alguien solo con los megadisparos cargados.", d: 2}
+    ] },
+    { id: "freja", name: "Freja", role: "damage", subrole: "Reconocimiento", retos: [
+      {t: "Cada Bola Shot tiene que atar a alguien. Fallo: 3 flexiones.", d: 2},
+      {t: "Encadena Updraft + Take Aim + Quick Dash en el aire y consigue una baja sin tocar el suelo.", d: 3},
+      {t: "Usa Take Aim en el aire en cada disparo: prohibido disparar desde el suelo.", d: 2},
+      {t: "Tu Bola Shot (ulti) tiene que pillar a 2 o más enemigos.", d: 3},
+      {t: "Tras cada baja, di el nombre de la presa como si estuvieras cazando.", d: 1},
+      {t: "Usa Updraft para esquivar una muerte segura y remata al que te estaba disparando.", d: 3},
+      {t: "Consigue 3 bajas encadenadas usando Quick Dash para recargar ballesta.", d: 3},
+      {t: "Solo puedes cazar supports: prohibido disparar a tanques.", d: 2},
+      {t: "Toda la partida como cazarrecompensas danesa: cada kill es «dinero en el banco».", d: 1},
+      {t: "Aprovecha la pasiva de Reconocimiento: avisa al equipo en voz alta de cada enemigo a media vida que ves tras muros.", d: 1},
+      {t: "Tras cada baja, marca el cadáver con un ping y un spray: tu trofeo de caza.", d: 1},
+      {t: "Consigue un doble kill con una sola ráfaga de ballesta.", d: 3}
+    ] },
+    { id: "genji", name: "Genji", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Grita «¡Ryujin no ken wo kurae!» cada vez que saques Dragonblade. Si no matas a nadie con ella, 10 flexiones.", d: 2},
+      {t: "Mata a alguien con un proyectil devuelto con Desviar.", d: 3},
+      {t: "Dragonblade: mínimo 3 bajas por ulti.", d: 3},
+      {t: "Toda la partida sin usar el disparo principal: solo abanico de shurikens y melé.", d: 2},
+      {t: "Cada Golpe veloz tiene que rematar a alguien. Dash sin kill: bebe agua.", d: 2},
+      {t: "Pide curación a los supports con «¡Necesito curación!» cada 10 segundos durante la primera ronda. El meme vive.", d: 1},
+      {t: "Antes de entrar a por un objetivo, ponle un spray a sus pies y hazle una reverencia (agáchate dos veces). Honor ninja.", d: 2},
+      {t: "Escala por paredes para flanquear cada vez que respawnees: prohibido entrar por la puerta principal.", d: 1},
+      {t: "Consigue una baja con los tres shurikens del disparo principal directos a la cabeza.", d: 2},
+      {t: "Antes de cada Dragonblade, pide nano o avisa al equipo por el micro. Sin anuncio, no hay espada.", d: 2},
+      {t: "Consigue un reset de Golpe veloz dos veces seguidas en el mismo Dragonblade.", d: 2},
+      {t: "Tras cada baja, haz una reverencia (emote o agacharte tres veces).", d: 1}
+    ] },
+    { id: "hanzo", name: "Hanzo", role: "damage", subrole: "En el blanco", retos: [
+      {t: "Una flecha, un headshot: tienes que conseguir mínimo 3 kills de un solo tiro a la cabeza.", d: 3},
+      {t: "Grita «¡Ryuu ga waga teki wo kurau!» en cada Golpe del dragón. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Usa Flecha sónica antes de cada pelea y avisa por el micro de cuántos enemigos ves.", d: 1},
+      {t: "Solo puedes disparar flechas cargadas al máximo. Nada de spam.", d: 2},
+      {t: "Consigue una kill con una flecha lanzada «al azar» contra un grupo (sin apuntar a nadie). El chat lo juzga.", d: 1},
+      {t: "Tras cada headshot, haz un spray en tu posición y cambia de sitio antes del siguiente tiro.", d: 2},
+      {t: "Encadena Salto y Escalada para llegar a una posición que ningún aliado haya pisado en toda la partida.", d: 2},
+      {t: "Toda la partida en la misma posición alta: prohibido bajar al suelo salvo al morir.", d: 2},
+      {t: "Flechas de tormenta: mata a un tanque con una sola ráfaga.", d: 3},
+      {t: "Cada vez que hagas una kill de chiripa, di «pura habilidad» con toda la seriedad.", d: 1},
+      {t: "Tu Golpe del dragón tiene que atravesar a 3 enemigos o más.", d: 2},
+      {t: "Consigue una baja con una flecha disparada en pleno Salto (Lunge). Clip o no pasó.", d: 3}
+    ] },
+    { id: "junkrat", name: "Junkrat", role: "damage", subrole: "Especialista", retos: [
+      {t: "Solo puedes matar con la trampa + otro golpe; cada kill tiene que empezar con alguien atrapado.", d: 3},
+      {t: "Grita «¡FIRE IN THE HOLE!» con cada Rip-Tire. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Usa la Mina de conmoción para hacer un salto doble hasta la backline enemiga.", d: 2},
+      {t: "Mata a alguien con el impacto directo de la Mina de conmoción.", d: 3},
+      {t: "Rip-Tire subiendo por una pared hasta un enemigo que se cree a salvo.", d: 2},
+      {t: "Cuando mueras, tus granadas de muerte tienen que matar a alguien una vez en la partida.", d: 3},
+      {t: "Toda la partida riendo como un loco cada vez que explota algo. El chat decide si la risa vale.", d: 1},
+      {t: "Prohibido disparar granadas directas: solo rebotes en paredes.", d: 2},
+      {t: "Pon la trampa en el pack de vida enemigo y atrapa a alguien que vaya a curarse.", d: 1},
+      {t: "Consigue 3 kills con un solo Rip-Tire.", d: 3},
+      {t: "Cada trampa que no atrape a nadie en toda su vida útil: bebe agua.", d: 1},
+      {t: "Spam de pasillo: dispara granadas a cada esquina antes de asomarte. Nunca asomes sin haber lanzado antes.", d: 1}
+    ] },
+    { id: "mei", name: "Mei", role: "damage", subrole: "Especialista", retos: [
+      {t: "Usa Muro de hielo para dividir al equipo enemigo y consigue una kill al que se quede solo.", d: 2},
+      {t: "Levanta a un enemigo con el Muro de hielo desde abajo y remátalo cuando caiga.", d: 3},
+      {t: "Ventisca tiene que congelar o ralentizar a 3 o más enemigos.", d: 3},
+      {t: "Pon el muro para cortar la línea de visión del equipo enemigo justo cuando tu equipo entra a pelear.", d: 2},
+      {t: "Levanta el muro para subirte tú a una posición alta tres veces en la partida.", d: 1},
+      {t: "Cada vez que uses Criocongelación di «¡A-Mei-zing!» con voz alegre.", d: 1},
+      {t: "Aisla a un support enemigo con el muro y mátalo.", d: 2},
+      {t: "Solo puedes usar el disparo secundario (carámbano) para matar.", d: 2},
+      {t: "Toda la partida hablando de clima y de salvar el planeta cuando mueras.", d: 1},
+      {t: "Tras cada baja, construye un pilar de hielo sobre el cadáver y haz un spray delante: monumento a la víctima.", d: 1},
+      {t: "Tu Ventisca tiene que caer siempre encima del objetivo, nunca en otro sitio, y di «¡a congelarse!» al lanzarla.", d: 2},
+      {t: "Prohibido usar el muro para escapar: solo ofensivo o para aliados.", d: 2}
+    ] },
+    { id: "pharah", name: "Pharah", role: "damage", subrole: "Reconocimiento", retos: [
+      {t: "Toda la partida en el aire: si tocas el suelo más de 3 segundos seguidos, 3 flexiones.", d: 2},
+      {t: "Grita «¡La justicia llueve desde arriba!» en cada Barrage. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Aprovecha las Drift Thrusters: Barrage moviéndote para rodear una esquina y matar a 2.", d: 3},
+      {t: "Empuja a un enemigo con Disparo de conmoción y remátalo con un cohete directo en el aire.", d: 3},
+      {t: "Consigue 3 impactos directos de cohete seguidos.", d: 2},
+      {t: "Cada vez que un support aliado te cure en el aire, dale las gracias con la línea de voz «Gracias».", d: 1},
+      {t: "Consigue una baja desde más alto que cualquier edificio del mapa.", d: 3},
+      {t: "Prohibido tocar el objetivo a pie: solo puedes contestarlo volando.", d: 2},
+      {t: "Usa Disparo de conmoción para separar a un tanque de su equipo.", d: 2},
+      {t: "Cada vez que te bajen del cielo, di el nombre de quien te ha matado con rabia y promete venganza.", d: 1},
+      {t: "Mata con cohetes a alguien que esté detrás de una esquina rebotando la explosión.", d: 2},
+      {t: "Barrage desde el cielo al centro del objetivo, sin cobertura, y sobrevive.", d: 3}
+    ] },
+    { id: "reaper", name: "Reaper", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Grita «¡MORID, MORID, MORID!» en cada Flor de la muerte. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Usa Paso de las sombras para colocarte detrás de la backline enemiga en cada respawn.", d: 2},
+      {t: "Toda la partida sin usar Forma espectral.", d: 2},
+      {t: "Flor de la muerte: 3 o más kills en un solo ulti.", d: 3},
+      {t: "Mata a un tanque en solitario de un cara a cara.", d: 2},
+      {t: "Usa Dire Triggers solo para rematar a enemigos que huyen.", d: 1},
+      {t: "Antes de cada Paso de las sombras, pon un spray en el sitio de destino con un ping para avisar. Terror anunciado.", d: 2},
+      {t: "Toda la partida hablando con voz grave y dramática sobre Gabriel Reyes y tus traiciones.", d: 1},
+      {t: "Prohibido disparar desde más de 10 metros salvo con Dire Triggers.", d: 2},
+      {t: "Mata al que esté en la posición más alta del equipo enemigo apareciendo detrás de él con Paso de las sombras.", d: 3},
+      {t: "Cada vez que mueras, di «...edgy» con toda la depresión que puedas.", d: 1},
+      {t: "Aprovecha los packs de vida: después de cada pelea, pasa por uno antes de volver y di cuánto te cura.", d: 1}
+    ] },
+    { id: "shion", name: "Shion", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Cada Joyride tiene que acabar con la moto lanzada contra un enemigo. Moto al aire: 5 flexiones.", d: 2},
+      {t: "Satsuriku Spree tiene que matar a 2 enemigos o más en las tres acometidas.", d: 3},
+      {t: "Carga Execution al máximo (cruz cerrada) y mata a alguien con ella.", d: 2},
+      {t: "Usa Evade justo cuando te vayan a matar para sobrevivir con la sobrevida.", d: 2},
+      {t: "Prohibido bajarte de la moto antes de estar en el flanco enemigo.", d: 2},
+      {t: "Grita «¡BRUM BRUM!» cada vez que arranques Joyride.", d: 1},
+      {t: "Mata a un support enemigo llegando en moto.", d: 2},
+      {t: "Juega con la ventaja Faces of Death y aprovecha las pasivas de Reconocimiento avisando de enemigos tocados.", d: 1},
+      {t: "Consigue 3 kills sin recargar gracias a la ventaja Rapid Reload.", d: 3},
+      {t: "Atropella a un enemigo lanzando la moto y mátalo antes de que se levante.", d: 2},
+      {t: "Tras cada baja, dedica una frase de yakuza a tu víctima.", d: 1},
+      {t: "Satsuriku Spree para rodear al tanque enemigo y matar a un support.", d: 3}
+    ] },
+    { id: "sierra", name: "Sierra", role: "damage", subrole: "Reconocimiento", retos: [
+      {t: "Cada vez que marques a alguien con Tracking Shot, dispárale hasta que muera o se esconda. Nada de cambiar de objetivo.", d: 2},
+      {t: "Usa Anchor Drone para subir a una posición alta en cada respawn.", d: 1},
+      {t: "Tremor Charge tiene que golpear a 2 o más enemigos a la vez.", d: 2},
+      {t: "Trailblazer tiene que matar al menos a 2 enemigos.", d: 3},
+      {t: "Consigue una baja disparando mientras vuelas hacia tu Anchor Drone.", d: 2},
+      {t: "Prohibido disparar sin haber marcado primero con Tracking Shot.", d: 2},
+      {t: "Aprovecha la pasiva de Reconocimiento: canta por el micro cada enemigo revelado a media vida.", d: 1},
+      {t: "Lanza el Anchor Drone, pelea lejos de él y vuelve con él justo cuando estés a punto de morir. Tres veces en la partida.", d: 3},
+      {t: "Con la ventaja Medi-Drone, cura a un aliado con el dron.", d: 1},
+      {t: "Grita «¡OBJETIVO FIJADO!» cada vez que marques.", d: 1},
+      {t: "Consigue 3 bajas con la hélice sin soltar el gatillo ni recargar.", d: 3},
+      {t: "Tras cada baja, haz un spray en tu posición antes de lanzar el dron a la siguiente: exploradora que deja rastro.", d: 2}
+    ] },
+    { id: "sojourn", name: "Sojourn", role: "damage", subrole: "En el blanco", retos: [
+      {t: "Mata a 3 enemigos con Railgun cargada a tope a la cabeza.", d: 3},
+      {t: "Toda la partida deslizando: si no usas Carrera energizada con salto al menos una vez por pelea, 3 sentadillas.", d: 1},
+      {t: "Sobrecarga: consigue 3 kills durante el ulti.", d: 3},
+      {t: "Usa Disrupción para echar a los enemigos del objetivo.", d: 2},
+      {t: "Prohibido disparar el Railgun sin carga completa.", d: 2},
+      {t: "Consigue una baja con Railgun cargada en pleno salto de Carrera energizada.", d: 3},
+      {t: "Desliza y salta sobre la cabeza de un enemigo, mátalo y sal vivo.", d: 2},
+      {t: "Tras cada kill cargada, di «railgun, baby».", d: 1},
+      {t: "Aprovecha la pasiva: cada crit reduce el cooldown de la carrera. Encadena tres carreras seguidas en una pelea.", d: 3},
+      {t: "Mata de un railgun cargado a un enemigo a más de 30 metros.", d: 3},
+      {t: "Toda la partida en posiciones altas a las que solo llegas con Carrera energizada.", d: 2},
+      {t: "Cada railgun fallado con carga completa: bebe agua.", d: 1}
+    ] },
+    { id: "soldier-76", name: "Soldado: 76", role: "damage", subrole: "Especialista", retos: [
+      {t: "Grita «¡Te tengo en la mira!» en cada Visor táctico. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Tu Campo biótico tiene que salvar a un aliado de morir.", d: 1},
+      {t: "Mata a alguien con el Cohete hélice directo.", d: 1},
+      {t: "Usa el Cohete hélice para hacer rocket jump a una posición alta tres veces.", d: 2},
+      {t: "Toda la partida corriendo con Sprint: prohibido andar si no estás disparando.", d: 1},
+      {t: "Visor táctico: 3 kills o más.", d: 3},
+      {t: "Consigue una baja disparando el rifle en pleno rocket jump con el Cohete hélice.", d: 3},
+      {t: "Toda la partida hablando como un viejo militar gruñón que odia a los jóvenes.", d: 1},
+      {t: "Prohibido usar el Campo biótico para ti solo: solo si hay un aliado cerca.", d: 2},
+      {t: "Mata a un enemigo a más de 40 metros con ráfagas del rifle.", d: 3},
+      {t: "Tras cada baja, suelta el Campo biótico sobre el cadáver y haz el saludo militar (emote o voz) antes de seguir.", d: 2},
+      {t: "Gana un 1v1 a menos de 10 metros usando solo el rifle, sin cohete ni campo biótico.", d: 3}
+    ] },
+    { id: "sombra", name: "Sombra", role: "damage", subrole: "Reconocimiento", retos: [
+      {t: "Hackea a un support enemigo y mátalo antes de que termine el efecto.", d: 2},
+      {t: "IEM tiene que pillar a 3 o más enemigos.", d: 3},
+      {t: "Cada vez que hackees un pack de vida, di «¡ESTE ES MÍO!»", d: 1},
+      {t: "Usa Translocador para escapar justo a tiempo de una muerte segura.", d: 2},
+      {t: "Prohibido usar el Virus: solo metralleta y hackeo.", d: 2},
+      {t: "Antes de atacar a tu objetivo, sal de invisible, ponle un spray a los pies y salúdalo con «Hola». Luego, hackeo.", d: 3},
+      {t: "Toda la partida hablando como hacker mexicana, con un «¿qué onda?» cada vez que hackees a alguien.", d: 1},
+      {t: "Hackea al enemigo que esté en la posición más alta y mátalo.", d: 2},
+      {t: "Lanza IEM y consigue que tu equipo mate a 3 o más enemigos en los 5 segundos siguientes.", d: 3},
+      {t: "Consigue 3 bajas seguidas sin que te detecten.", d: 3},
+      {t: "Aparece de invisible justo detrás del objetivo y di «boop» por el micro antes del primer disparo. Si te ven antes, no vale.", d: 1},
+      {t: "Hackea al tanque enemigo al inicio de cada pelea y avisa por el micro «¡tanque hackeado!».", d: 2}
+    ] },
+    { id: "symmetra", name: "Symmetra", role: "damage", subrole: "Especialista", retos: [
+      {t: "Coloca un teleportador que use al menos 3 aliados en una pelea.", d: 2},
+      {t: "Tus torretas centinela tienen que conseguir una kill por sí solas.", d: 2},
+      {t: "Tu Barrera fotónica tiene que cortar el mapa justo cuando tu equipo entra a pelear y aguantar toda la pelea.", d: 3},
+      {t: "Toda la partida con el rayo principal: prohibido el orbe secundario.", d: 2},
+      {t: "Coloca el teleportador para que al menos 2 aliados lleguen a la pelea desde el spawn antes que el enemigo.", d: 3},
+      {t: "Pon torretas en la salida del spawn enemigo o en su pack de vida.", d: 1},
+      {t: "Cada vez que el rayo esté a potencia máxima, di «perfección».", d: 1},
+      {t: "Carga el rayo al máximo con el tanque enemigo y mata a alguien de la backline con él.", d: 2},
+      {t: "Usa el teleportador para salvarte de una muerte segura.", d: 3},
+      {t: "Prohibido dejar el teleportador sin usar cuando esté disponible.", d: 1},
+      {t: "Coloca las tres torretas en forma de triángulo perfecto en cada pelea. El chat juzga la simetría.", d: 2},
+      {t: "Tras cada kill, di «orden» con voz autoritaria.", d: 1}
+    ] },
+    { id: "torbjorn", name: "Torbjörn", role: "damage", subrole: "Especialista", retos: [
+      {t: "Tu torreta tiene que conseguir 3 kills en la partida.", d: 2},
+      {t: "Tu Núcleo fundido tiene que cubrir el objetivo entero y que ningún enemigo lo pise mientras dura.", d: 3},
+      {t: "Lanza la torreta a una posición absurda (techo, cornisa rara) y que mate a alguien.", d: 2},
+      {t: "Toda la partida sin usar el disparo secundario.", d: 1},
+      {t: "Grita «¡HAMMER TIME!» cada vez que repares la torreta.", d: 1},
+      {t: "Sobrecarga para ganar un 1v1 contra un tanque.", d: 3},
+      {t: "Tu torreta tiene que durar viva una pelea entera sin que la destruyan.", d: 2},
+      {t: "Toda la partida quejándote de las máquinas y de los ómnicos con acento sueco inventado.", d: 1},
+      {t: "Prohibido colocar la torreta en el objetivo: solo en flancos o torres.", d: 2},
+      {t: "Mata a alguien con el martillo en melé.", d: 2},
+      {t: "Núcleo fundido: 2 kills en un solo ulti.", d: 3},
+      {t: "Cada vez que destrocen tu torreta, di «¡mi niña!» con pena.", d: 1}
+    ] },
+    { id: "tracer", name: "Tracer", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Grita «¡Ahí va el paquete!» en cada Bomba de pulsos. Si no mata a nadie, 10 flexiones.", d: 2},
+      {t: "Pega la bomba en el tanque enemigo y mata a alguien más con la explosión.", d: 3},
+      {t: "Usa Regresión para escapar de una muerte segura y mata al que te perseguía.", d: 2},
+      {t: "Toda la partida sin Regresión.", d: 3},
+      {t: "Mata a los supports enemigos 3 veces en la partida.", d: 2},
+      {t: "Antes de entrar a por un objetivo, parpadea hasta sus pies, pon un spray y di «¡Hola!» con la línea de voz. Luego, dispara.", d: 2},
+      {t: "Cada vez que mueras, di «¡el reino de Tracer ha acabado!» con drama.", d: 1},
+      {t: "Prohibido estar frente a frente con el tanque enemigo más de 3 segundos.", d: 2},
+      {t: "Aprovecha los packs de vida: después de cada fight, pasa por uno y di cuánto te ha curado.", d: 1},
+      {t: "Mata al enemigo en la posición más alta del mapa subiendo hasta él.", d: 3},
+      {t: "Hablando con acento británico toda la partida: «cheers love» incluido.", d: 1},
+      {t: "Aguanta 5 segundos en medio del equipo enemigo sin morir (Parpadeo y Regresión permitidos).", d: 2}
+    ] },
+    { id: "vendetta", name: "Vendetta", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Cada golpe final del combo (el tajo pesado) tiene que matar a alguien una vez por pelea.", d: 2},
+      {t: "Sundering Blade cargado al máximo: mata a 2 enemigos con un solo tajo.", d: 3},
+      {t: "Usa Soaring Slice para lanzar la espada y volar hasta la backline enemiga en cada respawn.", d: 2},
+      {t: "Aguanta con Warding Stance en mitad del equipo enemigo hasta vaciar la energía y sal viva.", d: 3},
+      {t: "Llega a 5 stacks de Onslaught antes de cada kill.", d: 2},
+      {t: "Grita «¡VENDETTA!» cada vez que lances Sundering Blade.", d: 1},
+      {t: "Consigue 3 kills con Projected Edge.", d: 2},
+      {t: "Prohibido usar Whirlwind Dash para escapar.", d: 2},
+      {t: "Antes de cargar contra tu objetivo, señálalo con un ping, ponle un spray a los pies y di «esto es personal».", d: 2},
+      {t: "Toda la partida hablando como jefa de la mafia italiana. Cada kill es «un regalo de familia».", d: 1},
+      {t: "Mata al tanque enemigo en 1v1.", d: 3},
+      {t: "Cada vez que mueras, di «esto no ha terminado» con rabia de gladiadora.", d: 1}
+    ] },
+    { id: "venture", name: "Venture", role: "damage", subrole: "Flanqueador", retos: [
+      {t: "Cada vez que salgas de Excavar, tienes que golpear a alguien. Emerger sin pillar: 3 flexiones.", d: 2},
+      {t: "Tectonic Shock tiene que pillar a 3 o más enemigos.", d: 3},
+      {t: "Excava justo cuando te vayan a matar y sobrevive.", d: 2},
+      {t: "Tras cada kill, di un dato de paleontología o geología.", d: 1},
+      {t: "Mata a un support enemigo saliendo del suelo bajo él.", d: 2},
+      {t: "Prohibido usar Drill Dash para huir.", d: 2},
+      {t: "Toda la partida bajo tierra entre peleas: cuando vuelves al frente, siempre excavando.", d: 1},
+      {t: "Salta desde bajo tierra y mata a un enemigo mientras sigue en el aire.", d: 3},
+      {t: "Consigue un doble kill con Tectonic Shock.", d: 3},
+      {t: "Antes de excavar hacia tu objetivo, ponle un spray a sus pies y dile «¡voy a por tus fósiles!» por el micro.", d: 2},
+      {t: "Grita «¡EUREKA!» cada vez que encuentres un pack de vida.", d: 1},
+      {t: "Aprovecha los packs de vida: nunca vuelvas a la pelea sin pasar por uno.", d: 1}
+    ] },
+    { id: "widowmaker", name: "Widowmaker", role: "damage", subrole: "En el blanco", retos: [
+      {t: "Prohibido el garfio para huir: solo puedes usarlo para llegar a una posición nueva.", d: 2},
+      {t: "Consigue 3 tiros a la cabeza de un solo disparo.", d: 3},
+      {t: "Cambia de posición después de cada kill: nunca dos kills desde el mismo sitio.", d: 2},
+      {t: "Tras cada baja, haz un spray en tu posición y el emote de reírte antes de moverte al siguiente sitio.", d: 2},
+      {t: "Usa Visor infrarrojo y avisa al equipo de todos los enemigos que ves.", d: 1},
+      {t: "Toda la partida hablando francés de mentira: «oh là là» en cada headshot.", d: 1},
+      {t: "Consigue un headshot con zoom mientras cuelgas del garfio a mitad de trayecto.", d: 3},
+      {t: "Pon la Mina venenosa en el pack de vida o en el flanco y que pille a alguien.", d: 1},
+      {t: "Prohibido disparar sin zoom: todo con mira.", d: 2},
+      {t: "Consigue una baja a quemarropa con el fusil sin zoom y remátala con el emote de soplar el cañón.", d: 3},
+      {t: "Cada headshot fallado a un objetivo quieto: bebe agua.", d: 1},
+      {t: "Usa el garfio para cruzar el mapa y sorprender desde un ángulo nuevo en cada ronda.", d: 2}
+    ] },
+    { id: "ana", name: "Ana", role: "support", subrole: "Estratega", retos: [
+      {t: "Solo puedes usar la granada biótica para anular curación, nunca para curar a tu equipo.", d: 2},
+      {t: "Duerme a un enemigo y que tu equipo lo mate antes de que se despierte.", d: 2},
+      {t: "Nanoestimulante solo al tanque. Grita el nombre del tanque cuando lo lances.", d: 1},
+      {t: "Duerme a dos enemigos distintos en la misma pelea: uno al empezar y otro cuando vuelva el dardo.", d: 3},
+      {t: "Duerme a un enemigo que esté a menos de 5 metros de ti y remátalo con un tiro a la cabeza.", d: 2},
+      {t: "Prohibido hacer scope: toda la partida sin apuntar con mira, solo disparos desde la cadera.", d: 2},
+      {t: "Cada Dardo somnífero fallado: una flexión.", d: 1},
+      {t: "Toda la partida hablando como una abuela: «hijo, ¿has comido?» cada vez que cures al tanque.", d: 1},
+      {t: "Granada biótica a 3 enemigos a la vez para cortarles la curación.", d: 2},
+      {t: "Duerme a un enemigo a más de 25 metros de distancia. El chat decide si estaba lejos de verdad.", d: 3},
+      {t: "Tras cada Nanoestimulante, di «¡Tú puedes, cariño!». Si tu aliado nanoestimulado no mata a nadie, bebe agua.", d: 1},
+      {t: "Cada vez que duermas a alguien, acércate, ponle un spray al lado y dale las buenas noches por el micro. Si te matan, valió la pena.", d: 2},
+      {t: "Prohibido moverte de tu posición de tiro hasta que te obliguen a salir.", d: 2}
+    ] },
+    { id: "baptiste", name: "Baptiste", role: "support", subrole: "Estratega", retos: [
+      {t: "Campo de inmortalidad tiene que salvar a un aliado que iba a morir sí o sí. El chat decide.", d: 2},
+      {t: "Tu Matriz amplificadora tiene que conseguir 2 kills del equipo o más.", d: 2},
+      {t: "Usa Botas de exo para subir a posiciones altas cada vez que respawnees.", d: 1},
+      {t: "Solo puedes curar con la Explosión regenerativa y las granadas. Prohibido disparar a enemigos (disparo principal) hasta el segundo punto.", d: 2},
+      {t: "Gana un 1v1 usando solo el rifle de tres balas, sin Explosión regenerativa ni campo.", d: 2},
+      {t: "Tras cada Campo de inmortalidad, grita «¡NADIE MUERE HOY!»", d: 1},
+      {t: "Coloca la Matriz para que tu tanque la atraviese con su ulti.", d: 3},
+      {t: "Toda la partida en el aire con Botas de exo cada vez que haya una pelea: el chat cuenta los saltos.", d: 1},
+      {t: "Cada aliado que salves con el Campo de inmortalidad recibe un «¡de nada, hermano!» por la línea de voz de «De nada».", d: 1},
+      {t: "Consigue una kill con disparos a la cabeza atravesando la matriz.", d: 3},
+      {t: "Cada Campo de inmortalidad que no salve a nadie: bebe agua.", d: 1},
+      {t: "Consigue 3 bajas con el rifle en una misma vida sin dejar de curar.", d: 3}
+    ] },
+    { id: "brigitte", name: "Brigitte", role: "support", subrole: "Superviviente", retos: [
+      {t: "Cada Golpe de escudo tiene que aturdir a alguien. Golpe al aire: 3 flexiones.", d: 2},
+      {t: "Rally tiene que salvar una pelea: 3 aliados mínimo con escudos al activarla.", d: 2},
+      {t: "Empuja a un enemigo con Latigazo y remátalo antes de que se recupere.", d: 3},
+      {t: "Solo puedes curar pegando a enemigos (Inspirar). Paquetes de reparación prohibidos.", d: 2},
+      {t: "Protege a tu otro support toda la partida: nunca te alejes más de 10 metros de él.", d: 1},
+      {t: "Cada vez que tires un Paquete de reparación, di «¡entrega a domicilio!» con el nombre del aliado.", d: 1},
+      {t: "Mata a un enemigo que ataque a tu otro support.", d: 2},
+      {t: "Aprovecha la pasiva Superviviente: tras cada Latigazo de movimiento, di «¡arriba!».", d: 1},
+      {t: "Aguanta con el escudo delante de tu equipo hasta que te lo rompan y sobrevive.", d: 3},
+      {t: "Consigue 3 kills durante Rally.", d: 3},
+      {t: "Toda la partida sin levantar el escudo: modo berserker.", d: 2},
+      {t: "Cada vez que tu escudo se rompa, di «¡mi padre me hizo este escudo!»", d: 1}
+    ] },
+    { id: "illari", name: "Illari", role: "support", subrole: "Superviviente", retos: [
+      {t: "Sol cautivo tiene que pillar a 3 enemigos o más.", d: 3},
+      {t: "Tu Pilar sanador tiene que durar toda la pelea sin que lo rompan.", d: 2},
+      {t: "Usa Estallido para escapar de una muerte segura y remata al que te estaba disparando.", d: 2},
+      {t: "Consigue 3 kills con disparos cargados a la cabeza.", d: 3},
+      {t: "Grita «¡EL SOL SIEMPRE SALE!» con cada Sol cautivo.", d: 1},
+      {t: "Prohibido curar con el arma: solo el pilar puede curar.", d: 2},
+      {t: "Pon el Pilar sanador en una posición absurda (techo, esquina escondida) que dure toda la ronda.", d: 1},
+      {t: "Consigue una baja con disparo cargado en pleno Estallido.", d: 2},
+      {t: "Tras cada kill, di algo sobre los inti y el sol.", d: 1},
+      {t: "Cada vez que pongas el pilar, haz un spray al lado y bautízalo con el nombre que diga el chat.", d: 1},
+      {t: "Sol cautivo sobre el tanque enemigo y que tu equipo lo remate.", d: 2},
+      {t: "Prohibido estar cerca de tu pilar: siempre en posición de tiro lejos de él.", d: 2}
+    ] },
+    { id: "jetpack-cat", name: "Jetpack Cat", role: "support", subrole: "Estratega", retos: [
+      {t: "Remolca a tu tanque con Lifeline justo al centro del equipo enemigo al empezar cada pelea.", d: 2},
+      {t: "Catnapper tiene que atar a un support enemigo y llevártelo hasta tu equipo.", d: 3},
+      {t: "Toda la partida volando: la pasiva lo permite, así que si tocas el suelo, bebe agua.", d: 1},
+      {t: "Cada vez que actives Purr, maúlla por el micro. Maullido obligatorio.", d: 1},
+      {t: "Salva a un aliado a punto de morir sacándolo de la pelea con Lifeline.", d: 2},
+      {t: "Empuja con Purr a 3 enemigos a la vez.", d: 3},
+      {t: "Prohibido transportar al mismo aliado dos veces seguidas.", d: 2},
+      {t: "Transporta a un aliado de daño hasta una posición alta que no podría alcanzar solo.", d: 2},
+      {t: "Mata a alguien con las Biotic Pawjectiles.", d: 2},
+      {t: "Toda la partida hablando como un gato: todo lo que digas termina en «miau».", d: 1},
+      {t: "Consigue una kill del equipo después de tu Catnapper.", d: 2},
+      {t: "Aprovecha la pasiva Estratega: guarda carga de ulti extra y usa dos ultis seguidos en la misma pelea.", d: 3},
+      {t: "Como buen gato, tira algo: rompe con disparos todos los objetos del decorado que veas en el spawn antes de salir.", d: 1}
+    ] },
+    { id: "juno", name: "Juno", role: "support", subrole: "Superviviente", retos: [
+      {t: "Anillo hiperespacial tiene que pasar por delante de toda tu línea de ataque en cada pelea.", d: 2},
+      {t: "Rayo orbital tiene que matar a 2 enemigos o más.", d: 3},
+      {t: "Torpedos pulsares a 4 aliados a la vez.", d: 2},
+      {t: "Toda la partida en el aire: si tocas el suelo más de 3 segundos, bebe agua.", d: 2},
+      {t: "Grita «¡PARA MARTE!» con cada Rayo orbital.", d: 1},
+      {t: "Consigue una baja con el Mediblaster mientras planeas.", d: 3},
+      {t: "Usa Deslizamiento para salvarte de una muerte segura.", d: 2},
+      {t: "Prohibido curar con el arma: solo torpedos y ulti.", d: 2},
+      {t: "Tras cada kill, di algo de ciencia espacial.", d: 1},
+      {t: "Pasa con el anillo hiperespacial a tu tanque justo cuando entra a la pelea.", d: 1},
+      {t: "Consigue que el Rayo orbital salve a tu tanque de morir.", d: 2},
+      {t: "Toda la partida hablando como astronauta: «houston, tenemos un problema» cada vez que te maten.", d: 1},
+      {t: "Cada aliado que esquive la muerte gracias a tus torpedos recibe un saludo espacial con la línea de voz «Hola».", d: 1}
+    ] },
+    { id: "kiriko", name: "Kiriko", role: "support", subrole: "Médico", retos: [
+      {t: "Protección Suzu tiene que salvar a un aliado que iba a morir. El chat lo valida.", d: 2},
+      {t: "Usa Paso veloz para teletransportarte detrás de una pared y salvarte de una muerte segura.", d: 2},
+      {t: "Kitsune Rush tiene que empujar a tu equipo a ganar la pelea.", d: 2},
+      {t: "Consigue 3 kills con Kunai a la cabeza.", d: 3},
+      {t: "Prohibido usar Suzu para ti misma.", d: 2},
+      {t: "Grita «¡KITSUNE!» con cada ulti.", d: 1},
+      {t: "Aprovecha la pasiva Médico: cada vez que te cures curando, di «para mí también».", d: 1},
+      {t: "Cada vez que hagas Paso veloz hacia un aliado, salúdale con la línea de voz «Hola» al llegar.", d: 1},
+      {t: "Gana un 1v1 usando solo Kunai, sin Paso veloz.", d: 2},
+      {t: "Toda la partida en posiciones altas a las que llegas trepando.", d: 1},
+      {t: "Salva a tres aliados distintos con Suzu en la misma partida.", d: 3},
+      {t: "Cada Suzu que no limpie nada: bebe agua.", d: 1}
+    ] },
+    { id: "lifeweaver", name: "Lifeweaver", role: "support", subrole: "Médico", retos: [
+      {t: "Salva a un aliado de una muerte segura con Agarre vital (Life Grip).", d: 2},
+      {t: "Salva a dos aliados distintos con Agarre vital en la misma pelea.", d: 3},
+      {t: "Tu Plataforma de pétalos tiene que subir a un aliado a una posición alta.", d: 1},
+      {t: "Árbol de la vida tiene que salvar al menos a 2 aliados de morir.", d: 3},
+      {t: "Prohibido tirar de un aliado para salvarte a ti mismo.", d: 2},
+      {t: "Grita «¡PLANTA!» con cada Árbol de la vida.", d: 1},
+      {t: "Mata a alguien con las Espinas.", d: 2},
+      {t: "Pon la Plataforma de pétalos debajo de tu tanque al empezar cada pelea para darle altura. Avisa por el micro.", d: 2},
+      {t: "Toda la partida hablando como influencer de mindfulness.", d: 1},
+      {t: "Agarre vital: cancela el tirón con salto en el momento justo, tres veces en la partida.", d: 3},
+      {t: "Cada aliado que salves con Agarre vital recibe una flor: haz un spray a sus pies y dile algo bonito.", d: 1},
+      {t: "Cada vez que tu Agarre vital mate a un aliado sin querer, 10 sentadillas.", d: 1}
+    ] },
+    { id: "lucio", name: "Lúcio", role: "support", subrole: "Estratega", retos: [
+      {t: "Toda la partida sin tocar el suelo más de 3 segundos seguidos.", d: 3},
+      {t: "Barrera sonora tiene que salvar a tu equipo de morir en una pelea.", d: 2},
+      {t: "Empuja a un enemigo con Onda de sonido fuera del objetivo en el último segundo.", d: 3},
+      {t: "Prohibido cambiar de canción: solo velocidad toda la partida.", d: 1},
+      {t: "Grita «¡DROP THE BEAT!» con cada Barrera sonora.", d: 1},
+      {t: "Consigue una baja disparando mientras surfeas una pared.", d: 2},
+      {t: "Surfea las paredes del mapa entero de una punta a otra sin tocar el suelo.", d: 2},
+      {t: "Barrera sonora cayendo desde lo alto (salto desde pared) al menos dos veces en la partida.", d: 2},
+      {t: "Toda la partida cantando cada vez que activas Amplificador.", d: 1},
+      {t: "Consigue 3 boops que saquen a enemigos del objetivo.", d: 3},
+      {t: "Cambia de canción cada vez que el chat escriba «DROP». Si tardas más de 2 segundos, una flexión.", d: 2},
+      {t: "Aprovecha la pasiva Estratega: guarda carga extra y usa Barrera sonora dos veces en la misma pelea.", d: 3},
+      {t: "Al respawnear, haz el emote de baile de Lúcio en el spawn antes de salir. DJ no se salta el calentamiento.", d: 1}
+    ] },
+    { id: "mercy", name: "Mercy", role: "support", subrole: "Médico", retos: [
+      {t: "Resurrección: resucita a alguien en medio del objetivo y sobrevivid ambos.", d: 3},
+      {t: "Mata a alguien con la pistola Blaster Caduceo. Battle Mercy aparece.", d: 2},
+      {t: "Usa Flash Heal (Curación rápida) para salvar a un aliado a punto de morir.", d: 2},
+      {t: "Toda la partida potenciando: prohibido curar salvo con Flash Heal.", d: 2},
+      {t: "Grita «¡HEROES NEVER DIE!» en cada Resurrección.", d: 1},
+      {t: "Vuela con Ángel guardián entre aliados: nunca toques el suelo en toda la partida.", d: 3},
+      {t: "Potencia a un aliado durante su ulti y que consiga un multi-kill.", d: 2},
+      {t: "Cada vez que resucites a alguien, salúdale con la línea de voz «Hola» y haz un spray donde cayó.", d: 1},
+      {t: "Resucita a dos aliados en una misma pelea.", d: 3},
+      {t: "Toda la partida hablando como doctora alemana: «¡Ja!» en cada cura.", d: 1},
+      {t: "Salva al tanque con Flash Heal justo cuando está a 10% de vida.", d: 2},
+      {t: "Prohibido Valkyria: guarda el ulti hasta la última pelea.", d: 1}
+    ] },
+    { id: "mizuki", name: "Mizuki", role: "support", subrole: "Superviviente", retos: [
+      {t: "Healing Kasa tiene que rebotar a 3 aliados y volver a ti.", d: 2},
+      {t: "Binding Chain tiene que atar a un enemigo que tu equipo remate antes de que se suelte.", d: 2},
+      {t: "Katashiro Return: usa la vuelta al muñeco para esquivar una muerte segura.", d: 2},
+      {t: "Kekkai Sanctuary tiene que salvar a 2 aliados de morir.", d: 3},
+      {t: "Mata a alguien con el Spirit Glaive rebotando en una pared.", d: 3},
+      {t: "Grita «¡HASHIMOTO!» cada vez que actives el ulti.", d: 1},
+      {t: "Deja el katashiro en un sitio seguro antes de cada pelea y úsalo para volver al menos una vez por pelea.", d: 2},
+      {t: "Prohibido tirar el sombrero al tanque: solo a daños y supports.", d: 2},
+      {t: "Aprovecha la pasiva Superviviente: tras cada Katashiro Return, di cuánta vida recuperas.", d: 1},
+      {t: "Consigue que el Kekkai Sanctuary gane la pelea.", d: 2},
+      {t: "Toda la partida hablando como un ninja en misión secreta.", d: 1},
+      {t: "Cada vez que tu Kasa vuelva a tu cabeza, haz una reverencia (agáchate) antes de lanzarla de nuevo.", d: 2}
+    ] },
+    { id: "moira", name: "Moira", role: "support", subrole: "Médico", retos: [
+      {t: "Orbe biótico de daño tiene que matar a alguien.", d: 2},
+      {t: "Coalescencia tiene que matar a 2 enemigos y curar a 3 aliados a la vez.", d: 3},
+      {t: "Usa Desvanecer para salvarte de una muerte segura y vuelve a la pelea en 3 segundos.", d: 2},
+      {t: "Toda la partida sin usar el orbe de curación: solo el de daño.", d: 2},
+      {t: "Grita «¡CIENCIA!» con cada Coalescencia.", d: 1},
+      {t: "Consigue 3 kills en una misma vida con el agarre biótico.", d: 3},
+      {t: "Gana un 1v1 solo con el agarre biótico, sin orbes.", d: 2},
+      {t: "Toda la partida hablando como científica loca.", d: 1},
+      {t: "Aprovecha la pasiva Médico: cura mucho para curarte a ti mismo en un 1v1 que parecía perdido.", d: 2},
+      {t: "Prohibido Desvanecer para escapar: solo para entrar.", d: 2},
+      {t: "Tras cada kill, di «experimento completado» y pon un spray sobre la muestra.", d: 1},
+      {t: "Orbe biótico de daño rebotando en paredes y matando a 2.", d: 3}
+    ] },
+    { id: "wuyang", name: "Wuyang", role: "support", subrole: "Superviviente", retos: [
+      {t: "Tidal Blast tiene que salvar a tu tanque y tumbar a 3 enemigos.", d: 3},
+      {t: "Guardian Wave tiene que sacar a 2 enemigos del objetivo.", d: 3},
+      {t: "Toda la partida surfeando con Rushing Torrent: si andas más de 3 segundos, bebe agua.", d: 2},
+      {t: "Controla un orbe de agua en el aire para doblar una esquina y matar a alguien.", d: 3},
+      {t: "Grita «¡OLA!» (sin h) cada vez que uses Guardian Wave.", d: 1},
+      {t: "Prohibido Restorative Stream mantenido: solo pasivo.", d: 2},
+      {t: "Gana un 1v1 usando solo orbes de agua, sin Rushing Torrent.", d: 2},
+      {t: "Toda la partida hablando del agua, el mar y los peces. El chat decide si cuenta.", d: 1},
+      {t: "Salva a un aliado de la muerte con Tidal Blast encerrándolo en agua.", d: 2},
+      {t: "Cada vez que surfees hasta un aliado herido, salúdale con la línea de voz «Hola» antes de curarle.", d: 1},
+      {t: "Aprovecha la pasiva Superviviente: tras cada Rushing Torrent, recupera vida y dilo.", d: 1},
+      {t: "Consigue 3 kills con orbes cargados.", d: 3}
+    ] },
+    { id: "zenyatta", name: "Zenyatta", role: "support", subrole: "Estratega", retos: [
+      {t: "Transcendencia tiene que salvar a tu equipo de morir en una pelea. El chat lo valida.", d: 3},
+      {t: "Orbe de discordia siempre al tanque enemigo: prohibido cambiar de objetivo.", d: 1},
+      {t: "Gana un 1v1 cuerpo a cuerpo rematando con la patada de Zenyatta.", d: 2},
+      {t: "Empuja con la patada a un enemigo fuera del objetivo y remátalo con esferas.", d: 3},
+      {t: "Grita «¡PASA LA EXPERIENCIA!» en cada Transcendencia.", d: 1},
+      {t: "Toda la partida hablando como monje zen: todo con paz y calma, aunque perdáis.", d: 1},
+      {t: "Consigue 3 kills con esferas cargadas.", d: 3},
+      {t: "Cambia el orbe de armonía solo cuando el aliado anterior esté a vida completa. El chat vigila.", d: 2},
+      {t: "Antes de cada pelea, medita: haz el emote de meditar 3 segundos en el spawn o tras una esquina.", d: 1},
+      {t: "Consigue una baja con una esfera cargada a más de 30 metros.", d: 3},
+      {t: "Cada vez que mueras, di «la iluminación está cerca».", d: 1},
+      {t: "Usa el orbe de armonía solo en el tanque durante la primera ronda.", d: 2}
+    ] }
+  ],
+  generales: [
+    {t: "Toda la partida narrando tus jugadas en tercera persona, como un comentarista de fútbol.", d: 1, cat: "comunicacion"},
+    {t: "Solo puedes comunicarte con el equipo usando las líneas de voz y el sistema de avisos (ping). Nada de micro con tu equipo.", d: 2, cat: "comunicacion"},
+    {t: "Antes de cada pelea, predice en voz alta quién va a morir primero. Si aciertas 3, el chat te debe un aplauso.", d: 1, cat: "comunicacion"},
+    {t: "Cada vez que pidas algo al equipo, tiene que ser rimando. Sin rima, no hay petición.", d: 2, cat: "comunicacion"},
+    {t: "Habla todo el rato con acento andaluz exagerado. Si se te escapa el normal, bebe agua.", d: 1, cat: "comunicacion"},
+    {t: "Tienes que usar el botón de «Elogiar» a cada compañero antes de que termine la partida.", d: 1, cat: "comunicacion"},
+    {t: "Prohibido decir «tío», «bro» o «en plan» durante toda la partida. Cada vez que se escape, una sentadilla.", d: 2, cat: "comunicacion"},
+    {t: "Cada vez que un enemigo te mate, léele su nombre al chat con voz de presentador de boxeo mientras ves la killcam.", d: 1, cat: "comunicacion"},
+    {t: "Haz de shotcaller: antes de cada pelea tienes que decir el plan en voz alta en una sola frase.", d: 2, cat: "comunicacion"},
+    {t: "Prohibido andar hacia atrás: solo puedes moverte hacia delante y de lado.", d: 3, cat: "movimiento"},
+    {t: "Tienes que saltar cada vez que recargues. Recargar en el suelo: una flexión.", d: 1, cat: "movimiento"},
+    {t: "Toda la partida agachado cuando no estés en combate: te mueves como un ninja entre peleas.", d: 1, cat: "movimiento"},
+    {t: "Tienes que ir al pack de vida grande más cercano después de cada respawn antes de ir a la pelea.", d: 1, cat: "movimiento"},
+    {t: "Prohibido usar el mismo camino dos veces desde el spawn: cada respawn, una ruta nueva.", d: 2, cat: "movimiento"},
+    {t: "Tras cada kill, tienes que cambiar de posición al menos 10 metros antes de volver a disparar.", d: 2, cat: "movimiento"},
+    {t: "Toda la partida en la posición más alta posible del mapa para tu héroe.", d: 2, cat: "movimiento"},
+    {t: "Prohibido saltar en toda la partida.", d: 3, cat: "movimiento"},
+    {t: "Solo puedes girar la cámara hacia la derecha. Para mirar a la izquierda, da la vuelta completa.", d: 3, cat: "movimiento"},
+    {t: "Sensibilidad al doble durante toda la partida.", d: 2, cat: "controles"},
+    {t: "Sensibilidad a la mitad durante toda la partida.", d: 2, cat: "controles"},
+    {t: "Invierte el eje Y del ratón o del mando toda la partida.", d: 3, cat: "controles"},
+    {t: "Juega con el FOV al mínimo toda la partida.", d: 1, cat: "controles"},
+    {t: "Cambia a FOV máximo y desactiva el HUD toda la ronda.", d: 2, cat: "controles"},
+    {t: "Juega sin mira (crosshair) toda la partida: ponla invisible en ajustes.", d: 3, cat: "controles"},
+    {t: "Mira de color rosa chicle gigante toda la partida. El chat elige el tamaño.", d: 1, cat: "controles"},
+    {t: "Intercambia las teclas de habilidad 1 y 2 durante toda la partida.", d: 2, cat: "controles"},
+    {t: "Solo puedes usar una mano en el teclado: la otra, detrás de la espalda salvo para el ratón.", d: 3, cat: "controles"},
+    {t: "Mueve el ratón con la mano que no usas nunca durante la primera ronda.", d: 3, cat: "controles"},
+    {t: "Cada vez que un compañero muera, tienes que ir a su sitio de muerte y hacer un spray en su honor.", d: 1, cat: "equipo"},
+    {t: "Al empezar cada ronda, elige un compañero «protegido»: si muere antes que tú, 5 flexiones.", d: 2, cat: "equipo"},
+    {t: "Pide a tu equipo que elija tu próximo héroe si pierdes la primera ronda. Y respétalo.", d: 2, cat: "equipo"},
+    {t: "Tienes que seguir siempre al tanque de tu equipo: nunca más de 15 metros de él.", d: 2, cat: "equipo"},
+    {t: "Toda la partida animando al peor jugador de tu equipo con un mensaje positivo tras cada muerte suya.", d: 1, cat: "equipo"},
+    {t: "Elige a un compañero de daño al empezar: todas tus kills tienen que ser sobre el enemigo al que él esté disparando.", d: 2, cat: "equipo"},
+    {t: "Pide a tu equipo que hagáis un emote juntos al empezar la partida. Si lo consigues, el chat te regala inmunidad a un castigo.", d: 1, cat: "equipo"},
+    {t: "Cada vez que un compañero pida curación con el aviso del juego, tienes que responder «¡YA VA!» por el micro y curarle en 3 segundos.", d: 1, cat: "equipo", roles: ["support"]},
+    {t: "Tienes que curar a todos los compañeros al menos una vez cada pelea. El chat vigila la barra.", d: 2, cat: "equipo", roles: ["support"]},
+    {t: "Sé el primero en pisar el objetivo en cada pelea.", d: 2, cat: "equipo", roles: ["tank"]},
+    {t: "Protege a tu support más débil: cada vez que muera, bebe agua.", d: 2, cat: "equipo", roles: ["tank","damage"]},
+    {t: "Cada muerte: una flexión. Si mueres más de 8 veces, sentadillas en vez de flexiones.", d: 1, cat: "castigo"},
+    {t: "Cada muerte: un trago de agua. Hidratación obligatoria.", d: 1, cat: "castigo"},
+    {t: "Cada vez que te maten por la espalda, tienes que hablar con voz de pito durante 1 minuto.", d: 1, cat: "castigo"},
+    {t: "Si pierdes la primera ronda, la segunda la juegas de pie.", d: 2, cat: "castigo"},
+    {t: "Cada vez que mueras, el chat elige una palabra prohibida hasta el final de la partida.", d: 2, cat: "castigo"},
+    {t: "Cada ulti desperdiciado (sin kill ni efecto): 10 sentadillas al acabar.", d: 2, cat: "castigo"},
+    {t: "Cada vez que caigas al vacío, tienes que cantar el estribillo de una canción elegida por el chat.", d: 1, cat: "castigo"},
+    {t: "Si acabas con más muertes que kills, mañana abres el stream con una canción de karaoke.", d: 3, cat: "castigo"},
+    {t: "El chat elige tu héroe cada vez que mueras. Si cambias sin orden, 5 flexiones.", d: 3, cat: "caos"},
+    {t: "Tienes que jugar el ulti en cuanto lo tengas, sin esperar. Da igual la situación.", d: 2, cat: "caos"},
+    {t: "Toda la partida usando la skin más fea que tengas del héroe que juegues. El chat decide cuál es la más fea.", d: 1, cat: "caos"},
+    {t: "Cambia de héroe cada vez que consigas una kill.", d: 3, cat: "caos"},
+    {t: "Tienes que hacer un emote en mitad de cada pelea. Aunque te maten.", d: 2, cat: "caos"},
+    {t: "Spray obligatorio en cada esquina que pases antes de entrar a pelear.", d: 1, cat: "caos"},
+    {t: "Juega con música a todo volumen y sin sonido del juego durante la primera ronda.", d: 3, cat: "caos"},
+    {t: "Cada vez que el chat escriba «CAMBIO», tienes que cambiar de héroe en el siguiente respawn.", d: 2, cat: "caos"},
+    {t: "Tienes que pisar el objetivo o la carga en cada pelea, aunque sea solo un segundo.", d: 1, cat: "objetivo"},
+    {t: "Juega la partida entera sin salir del área del objetivo, salvo al respawnear.", d: 2, cat: "objetivo"},
+    {t: "Pisa el objetivo el primero de tu equipo al empezar cada ronda. Si alguien llega antes, una flexión.", d: 2, cat: "objetivo"},
+    {t: "Cada vez que el objetivo quede sin nadie de tu equipo encima más de 5 segundos, bebe agua. Tú eres el guardián.", d: 2, cat: "objetivo"},
+    {t: "Cada vez que tu equipo gane una pelea, pon un spray en el objetivo antes de que empiece la siguiente.", d: 1, cat: "objetivo"},
+    {t: "Haz un emote encima del objetivo al menos una vez por ronda, en mitad de la partida. Si te matan haciéndolo, cuenta igual.", d: 1, cat: "objetivo"},
+    {t: "Quédate en el objetivo 10 segundos seguidos sin salir durante una pelea, pase lo que pase.", d: 3, cat: "objetivo"}
+  ]
+};
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Constantes ---------- */
+  var ROLES = ['tank', 'damage', 'support'];
+  var ROLE_LABEL = { tank: 'Tanque', damage: 'Daño', support: 'Apoyo' };
+  var DIFF_LABEL = { 1: 'Fácil', 2: 'Media', 3: 'Difícil' };
+  var CATS = ['comunicacion', 'movimiento', 'controles', 'equipo', 'castigo', 'caos', 'objetivo'];
+  var CAT_LABEL = { comunicacion: 'Comunicación', movimiento: 'Movimiento', controles: 'Controles', equipo: 'Equipo', castigo: 'Castigo', caos: 'Caos', objetivo: 'Objetivo' };
+  var MODES = [
+    { v: 'heroe', l: 'Reto del héroe' },
+    { v: 'general', l: 'Reto general' },
+    { v: 'doble', l: 'Héroe + general (dos retos)' },
+    { v: 'mezcla', l: 'Mezcla aleatoria' }
+  ];
+  var STORE_KEY = 'ruleta-retos:v1';
+  var TAU = Math.PI * 2;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var ROLE_PATH = {
+    tank: 'M12 2 20 5v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5z',
+    damage: 'M11 2h2v5.1A5 5 0 0 1 16.9 11H22v2h-5.1A5 5 0 0 1 13 16.9V22h-2v-5.1A5 5 0 0 1 7.1 13H2v-2h5.1A5 5 0 0 1 11 7.1zm1 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+    support: 'M9 3h6v6h6v6h-6v6H9v-6H3V9h6z'
+  };
+  function roleIcon(role) {
+    var s = document.createElementNS(SVGNS, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+    s.setAttribute('class', 'ri role-' + role);
+    var pth = document.createElementNS(SVGNS, 'path');
+    pth.setAttribute('d', ROLE_PATH[role] || ''); pth.setAttribute('fill', 'currentColor');
+    if (role === 'damage') pth.setAttribute('fill-rule', 'evenodd');
+    s.appendChild(pth);
+    return s;
+  }
+  function diffEl(d, withLabel) {
+    var w = el('span', 'diff diff-' + d);
+    var bars = el('span', 'bars');
+    for (var i = 1; i <= 3; i++) bars.appendChild(el('i', i <= d ? 'on' : ''));
+    w.appendChild(bars);
+    if (withLabel !== false) w.appendChild(el('span', null, DIFF_LABEL[d]));
+    else w.setAttribute('aria-hidden', 'true');
+    return w;
+  }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  /* ---------- Aleatoriedad (crypto) ---------- */
+  var rbuf = new Uint32Array(1);
+  function rand() { crypto.getRandomValues(rbuf); return rbuf[0] / 4294967296; }
+  function randInt(n) { return Math.floor(rand() * n); }
+  function pick(arr) { return arr[randInt(arr.length)]; }
+
+  var reduceMq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { return !!(reduceMq && reduceMq.matches); }
+
+  /* ---------- Datos ---------- */
+  function clampD(d) { d = Number(d); return d === 1 || d === 2 || d === 3 ? d : 2; }
+  function validReto(r) { return r && typeof r.t === 'string' && r.t.trim() !== ''; }
+  function normalize(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    var out = { version: String(raw.version || ''), subroles: { tank: [], damage: [], support: [] }, heroes: [], generales: [] };
+    if (raw.subroles && typeof raw.subroles === 'object') {
+      ROLES.forEach(function (r) {
+        if (Array.isArray(raw.subroles[r])) out.subroles[r] = raw.subroles[r].filter(function (s) { return typeof s === 'string' && s; });
+      });
+    }
+    var ids = {};
+    (Array.isArray(raw.heroes) ? raw.heroes : []).forEach(function (h, i) {
+      if (!h || ROLES.indexOf(h.role) < 0 || !h.name) return;
+      var id = String(h.id || ('heroe-' + i));
+      if (ids[id]) id = id + '-' + i;
+      ids[id] = 1;
+      var retos = (Array.isArray(h.retos) ? h.retos : []).filter(validReto).map(function (r, j) {
+        return { t: r.t.trim(), d: clampD(r.d), key: 'h:' + id + ':' + j, src: 'heroe' };
+      });
+      out.heroes.push({ id: id, name: String(h.name), role: h.role, subrole: typeof h.subrole === 'string' && h.subrole ? h.subrole : null, retos: retos });
+    });
+    (Array.isArray(raw.generales) ? raw.generales : []).forEach(function (g, i) {
+      if (!validReto(g)) return;
+      out.generales.push({
+        t: g.t.trim(), d: clampD(g.d), cat: CATS.indexOf(g.cat) >= 0 ? g.cat : 'caos',
+        roles: Array.isArray(g.roles) ? g.roles.filter(function (r) { return ROLES.indexOf(r) >= 0; }) : null,
+        key: 'g:' + i, src: 'general'
+      });
+    });
+    var coll = typeof Intl !== 'undefined' && Intl.Collator ? new Intl.Collator('es') : null;
+    out.heroes.sort(function (a, b) {
+      var r = ROLES.indexOf(a.role) - ROLES.indexOf(b.role);
+      if (r) return r;
+      return coll ? coll.compare(a.name, b.name) : (a.name < b.name ? -1 : 1);
+    });
+    return out;
+  }
+  var DATA = normalize(window.OW_DATA);
+  var HAS_DATA = !!(DATA && DATA.heroes.length);
+  if (!DATA) DATA = { version: '', subroles: { tank: [], damage: [], support: [] }, heroes: [], generales: [] };
+  var CATS_PRESENT = CATS.filter(function (c) { return DATA.generales.some(function (g) { return g.cat === c; }); });
+
+  /* ---------- Estado ---------- */
+  var S = {
+    roles: new Set(ROLES), subroles: new Set(), diffs: new Set([1, 2, 3]), cats: new Set(CATS_PRESENT),
+    excluded: new Set(), mode: 'heroe', noRepHero: false, noRepReto: false, countRerolls: true,
+    muted: false, chroma: false, fullscreen: false
+  };
+  function defaultsFilters() {
+    S.roles = new Set(ROLES); S.subroles = new Set(); S.diffs = new Set([1, 2, 3]);
+    S.cats = new Set(CATS_PRESENT); S.excluded = new Set();
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        roles: Array.from(S.roles), subroles: Array.from(S.subroles), diffs: Array.from(S.diffs), cats: Array.from(S.cats),
+        excluded: Array.from(S.excluded), mode: S.mode, noRepHero: S.noRepHero, noRepReto: S.noRepReto,
+        countRerolls: S.countRerolls, muted: S.muted, chroma: S.chroma, fullscreen: S.fullscreen
+      }));
+    } catch (e) { /* sin almacenamiento: seguimos igual */ }
+  }
+  function load() {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { o = null; }
+    if (!o || typeof o !== 'object') return;
+    function arr(a) { return Array.isArray(a) ? a : null; }
+    if (arr(o.roles)) S.roles = new Set(o.roles.filter(function (r) { return ROLES.indexOf(r) >= 0; }));
+    if (arr(o.subroles)) S.subroles = new Set(o.subroles.filter(function (k) {
+      var p = String(k).split(':'); return DATA.subroles[p[0]] && DATA.subroles[p[0]].indexOf(p.slice(1).join(':')) >= 0;
+    }));
+    if (arr(o.diffs)) S.diffs = new Set(o.diffs.map(Number).filter(function (d) { return d >= 1 && d <= 3; }));
+    if (arr(o.cats)) S.cats = new Set(o.cats.filter(function (c) { return CATS.indexOf(c) >= 0; }));
+    if (arr(o.excluded)) S.excluded = new Set(o.excluded.map(String));
+    if (MODES.some(function (m) { return m.v === o.mode; })) S.mode = o.mode;
+    ['noRepHero', 'noRepReto', 'countRerolls', 'muted', 'chroma', 'fullscreen'].forEach(function (k) {
+      if (typeof o[k] === 'boolean') S[k] = o[k];
+    });
+  }
+  load();
+
+  var seenHeroes = new Set();
+  var usedRetos = new Set();
+  var history = [];
+  var rerolls = 0;
+  var current = null;   // { hero }
+  var busy = false;
+  var dirty = false;
+
+  /* ---------- Filtros ---------- */
+  function subroleOk(h) {
+    var any = DATA.subroles[h.role].some(function (s) { return S.subroles.has(h.role + ':' + s); });
+    if (!any) return true;
+    return h.subrole != null && S.subroles.has(h.role + ':' + h.subrole);
+  }
+  function activeHeroes() {
+    return DATA.heroes.filter(function (h) { return S.roles.has(h.role) && !S.excluded.has(h.id) && subroleOk(h); });
+  }
+  function heroPool(h) { return h.retos.filter(function (r) { return S.diffs.has(r.d); }); }
+  function generalPool(h) {
+    return DATA.generales.filter(function (g) {
+      return S.diffs.has(g.d) && S.cats.has(g.cat) && (!g.roles || !g.roles.length || g.roles.indexOf(h.role) >= 0);
+    });
+  }
+
+  /* ---------- Sonido (WebAudio, solo tras interacción) ---------- */
+  var actx = null, lastTick = 0;
+  function ensureAudio() {
+    if (!actx) {
+      try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) actx = new AC(); } catch (e) { actx = null; }
+    }
+    if (actx && actx.state === 'suspended') { try { actx.resume(); } catch (e) { } }
+  }
+  function blip(freq, dur, vol, type, when) {
+    if (S.muted || !actx) return;
+    try {
+      var t = actx.currentTime + (when || 0);
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || 'square';
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) { }
+  }
+  function tick(high) {
+    var now = performance.now();
+    if (now - lastTick < 28) return;
+    lastTick = now;
+    blip(high ? 2300 : 1500 + rand() * 120, 0.035, high ? 0.03 : 0.05, 'square');
+  }
+  function fanfare() {
+    [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { blip(f, 0.32, 0.06, 'triangle', i * 0.07); });
+  }
+  function thunk() { blip(220, 0.18, 0.08, 'triangle'); blip(880, 0.12, 0.03, 'square', 0.02); }
+
+  /* ---------- Ruleta en canvas ---------- */
+  var canvas = $('wheel'), ctx = canvas.getContext('2d');
+  var wrap = $('wheelWrap');
+  var wheelList = [];
+  var segColors = [];
+  var rot = 0;           // rotación actual (rad)
+  var winner = -1;
+  var kick = 0;          // desvío del puntero
+  var cssSize = 0, dpr = 1;
+  var C = {};
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    ['bg', 'bg-deep', 'panel', 'panel-2', 'text', 'text-2', 'text-3', 'accent', 'accent-hot', 'accent-deep', 'accent-ink',
+      'blue', 'tank', 'damage', 'support', 'seg-a', 'seg-b', 'seg-c', 'ring', 'ring-hi'].forEach(function (k) {
+        C[k] = cs.getPropertyValue('--' + k).trim() || '#888';
+      });
+    C.fontDisplay = cs.getPropertyValue('--font-display').trim() || 'sans-serif';
+  }
+  // Fuente display cursiva condensada para el canvas (con respaldo si el navegador no acepta el ancho)
+  function setFont(weight, px) {
+    var s = Math.max(1, px).toFixed(1) + 'px ' + C.fontDisplay;
+    ctx.font = 'italic ' + weight + ' ' + s;                    // respaldo seguro
+    ctx.font = 'italic ' + weight + ' extra-condensed ' + s;    // si el navegador no lo acepta, se ignora
+  }
+  function resizeCanvas() {
+    var w = wrap.clientWidth;
+    if (!w) return;
+    dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    cssSize = w;
+    var px = Math.round(w * dpr);
+    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+    drawWheel();
+  }
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function indexAt(r) {
+    var n = wheelList.length; if (!n) return -1;
+    var seg = TAU / n;
+    return Math.min(n - 1, Math.floor(mod(-r, TAU) / seg));
+  }
+  function computeSegColors() {
+    // dos azules alternos; si n es impar, el último usa un tercero para no juntar dos iguales
+    var n = wheelList.length;
+    segColors = wheelList.map(function (h, i) {
+      if (n % 2 === 1 && i === n - 1) return C['seg-c'];
+      return i % 2 ? C['seg-b'] : C['seg-a'];
+    });
+  }
+  function isDimmed(i) {
+    return (winner >= 0 && i !== winner) || (S.noRepHero && winner !== i && seenHeroes.has(wheelList[i].id));
+  }
+  function drawWheel() {
+    if (!cssSize) return;
+    var size = cssSize;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    var cx = size / 2, cy = size / 2;
+    var R = size / 2 - Math.max(20, size * 0.055);
+    var ringW = Math.max(8, R * 0.045);
+    var n = wheelList.length;
+
+    // anillo exterior metálico
+    var rg = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+    rg.addColorStop(0, C['ring-hi']); rg.addColorStop(0.35, C.ring); rg.addColorStop(0.65, C['bg-deep']); rg.addColorStop(1, C['ring-hi']);
+    ctx.beginPath(); ctx.arc(cx, cy, R + ringW, 0, TAU); ctx.fillStyle = rg; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, R + ringW + 1, 0, TAU); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(64,180,255,0.35)'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, R + 1, 0, TAU); ctx.fillStyle = C['bg-deep']; ctx.fill();
+
+    if (!n) {
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fillStyle = C['seg-a']; ctx.fill();
+      ctx.fillStyle = C['text-3']; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      setFont(800, R * 0.13);
+      ctx.fillText(HAS_DATA ? 'SIN HÉROES' : 'SIN DATOS', cx, cy);
+      drawPointer(cx, cy, R, ringW);
+      return;
+    }
+    var seg = TAU / n;
+    var band = Math.max(4, R * 0.028);
+    for (var i = 0; i < n; i++) {
+      var a0 = rot - Math.PI / 2 + i * seg, a1 = a0 + seg;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, a0, a1); ctx.closePath();
+      var sg = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, R);
+      sg.addColorStop(0, C['bg-deep']); sg.addColorStop(0.55, segColors[i]); sg.addColorStop(1, segColors[i]);
+      ctx.fillStyle = sg; ctx.fill();
+      if (isDimmed(i)) { ctx.fillStyle = 'rgba(5,9,16,0.6)'; ctx.fill(); }
+      ctx.lineWidth = n > 30 ? 1 : 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.stroke();
+      // franja de color de rol en el borde exterior
+      ctx.beginPath(); ctx.arc(cx, cy, R - band / 2, a0 + 0.004, a1 - 0.004);
+      ctx.lineWidth = band; ctx.strokeStyle = C[wheelList[i].role];
+      ctx.globalAlpha = isDimmed(i) ? 0.35 : 1; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    if (winner >= 0) {
+      var w0 = rot - Math.PI / 2 + winner * seg;
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R + 3, w0, w0 + seg); ctx.closePath();
+      var wg = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, R);
+      wg.addColorStop(0, C['accent-deep']); wg.addColorStop(1, C.accent);
+      ctx.shadowColor = C.accent; ctx.shadowBlur = 26;
+      ctx.fillStyle = wg; ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2.5; ctx.strokeStyle = C['accent-hot']; ctx.stroke();
+      ctx.restore();
+    }
+    // nombres radiales
+    var textOuter = R - band - Math.max(8, R * 0.035);
+    var avail = R * 0.6;
+    var base = Math.min(R * 0.1, R * 0.74 * seg * 1.0);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (var j = 0; j < n; j++) {
+      var name = wheelList[j].name.toUpperCase();
+      var fs = base;
+      setFont(800, fs);
+      var tw = ctx.measureText(name).width;
+      if (tw > avail) { fs = Math.max(7, fs * avail / tw); setFont(800, fs); }
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot - Math.PI / 2 + (j + 0.5) * seg);
+      var isW = j === winner;
+      ctx.fillStyle = isW ? C['accent-ink'] : (isDimmed(j) ? 'rgba(243,241,236,0.4)' : C.text);
+      if (!isW) { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1; }
+      ctx.fillText(name, textOuter, fs * 0.04);
+      ctx.restore();
+    }
+    // marcas del anillo
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    for (var k = 0; k < n; k++) {
+      var a = rot - Math.PI / 2 + k * seg;
+      ctx.save();
+      ctx.translate(cx + Math.cos(a) * (R + ringW / 2), cy + Math.sin(a) * (R + ringW / 2));
+      ctx.rotate(a);
+      ctx.fillRect(-ringW * 0.3, -1, ringW * 0.6, 2);
+      ctx.restore();
+    }
+    // buje central
+    var hr = R * 0.2;
+    ctx.beginPath(); ctx.arc(cx, cy, hr + 9, 0, TAU); ctx.fillStyle = C['bg-deep']; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, hr + 5, 0, TAU); ctx.lineWidth = 5; ctx.strokeStyle = C.accent; ctx.stroke();
+    var hg = ctx.createRadialGradient(cx, cy - hr * 0.4, 0, cx, cy, hr);
+    hg.addColorStop(0, C['panel-2']); hg.addColorStop(1, C['bg-deep']);
+    ctx.beginPath(); ctx.arc(cx, cy, hr, 0, TAU); ctx.fillStyle = hg; ctx.fill();
+    ctx.fillStyle = C.text; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    setFont(900, hr * 0.85);
+    ctx.fillText(String(n), cx, cy + hr * 0.2);
+    ctx.fillStyle = C.accent;
+    setFont(800, hr * 0.27);
+    ctx.fillText('HÉROES', cx, cy + hr * 0.55);
+
+    drawPointer(cx, cy, R, ringW);
+  }
+  function drawPointer(cx, cy, R, ringW) {
+    var len = Math.max(30, R * 0.15), half = Math.max(16, R * 0.07), notch = len * 0.42;
+    var baseY = cy - R - ringW - 8;
+    ctx.save();
+    ctx.translate(cx, baseY);
+    ctx.rotate(kick);
+    // chevron
+    ctx.beginPath();
+    ctx.moveTo(-half, 0); ctx.lineTo(0, notch); ctx.lineTo(half, 0); ctx.lineTo(half, len - notch); ctx.lineTo(0, len); ctx.lineTo(-half, len - notch); ctx.closePath();
+    ctx.shadowColor = 'rgba(249,158,26,0.55)'; ctx.shadowBlur = 14;
+    ctx.fillStyle = C.accent; ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.lineWidth = 2; ctx.strokeStyle = C['bg-deep']; ctx.stroke();
+    ctx.restore();
+  }
+  function easeOut(p) { return 1 - Math.pow(1 - p, 4); }
+  function spinWheelTo(k) {
+    return new Promise(function (resolve) {
+      var n = wheelList.length, seg = TAU / n;
+      var jitter = (rand() - 0.5) * 0.6;            // dentro del segmento, nunca en el borde
+      var targetMod = mod(-(k + 0.5 + jitter) * seg, TAU);
+      var start = rot;
+      var delta = mod(targetMod - mod(start, TAU), TAU);
+      var rm = reduced();
+      var turns = rm ? 1 : 6 + randInt(3);
+      var dur = rm ? 1100 : 5200 + randInt(1600);
+      var end = start + delta + turns * TAU;
+      var t0 = performance.now();
+      var lastIdx = indexAt(start);
+      function frame(now) {
+        var p = Math.min(1, (now - t0) / dur);
+        rot = start + (end - start) * easeOut(p);
+        var idx = indexAt(rot);
+        if (idx !== lastIdx) { lastIdx = idx; tick(false); kick = -0.35; }
+        kick *= 0.82;
+        drawWheel();
+        if (p < 1) requestAnimationFrame(frame);
+        else {
+          rot = mod(end, TAU);
+          kick = 0;
+          // Garantía: el segmento bajo el puntero es el héroe elegido
+          if (indexAt(rot) !== k) rot = mod(-(k + 0.5) * seg, TAU);
+          drawWheel();
+          resolve();
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  function refreshWheel() {
+    if (busy) { dirty = true; updateCounts(); return; }
+    var prevId = winner >= 0 && wheelList[winner] ? wheelList[winner].id : null;
+    wheelList = activeHeroes();
+    winner = prevId ? wheelList.findIndex(function (h) { return h.id === prevId; }) : -1;
+    computeSegColors();
+    updateCounts();
+    drawWheel();
+  }
+  function updateCounts() {
+    var list = activeHeroes();
+    $('inPlay').textContent = String(list.length);
+    var sub = '';
+    if (S.noRepHero) {
+      var left = list.filter(function (h) { return !seenHeroes.has(h.id); }).length;
+      sub = left + ' sin salir en esta ronda';
+    }
+    $('inPlaySub').textContent = sub;
+    canvas.setAttribute('aria-label', 'Ruleta con ' + list.length + ' héroes');
+    updateButtons();
+  }
+
+  /* ---------- Avisos ---------- */
+  var noticeT = 0;
+  function notice(msg) {
+    var n = $('notice');
+    n.textContent = msg; n.hidden = false;
+    clearTimeout(noticeT);
+    noticeT = setTimeout(function () { n.hidden = true; }, 6000);
+  }
+
+  /* ---------- Elección ---------- */
+  function chooseHero(list, avoidId) {
+    var cand = list;
+    if (S.noRepHero) {
+      var fresh = list.filter(function (h) { return !seenHeroes.has(h.id); });
+      if (!fresh.length) { seenHeroes.clear(); notice('Ya han salido todos los héroes: empieza una ronda nueva.'); fresh = list; }
+      cand = fresh;
+    }
+    if (avoidId && cand.length > 1) cand = cand.filter(function (h) { return h.id !== avoidId; });
+    return pick(cand);
+  }
+  function chooseReto(pool) {
+    var cand = pool;
+    if (S.noRepReto) {
+      var fresh = pool.filter(function (r) { return !usedRetos.has(r.key); });
+      if (!fresh.length) {
+        pool.forEach(function (r) { usedRetos.delete(r.key); });
+        notice('Se han agotado los retos de este grupo: vuelven a entrar todos.');
+        fresh = pool;
+      }
+      cand = fresh;
+    }
+    var r = pick(cand);
+    usedRetos.add(r.key);
+    return r;
+  }
+  function planRetos(h) {
+    var hp = heroPool(h), gp = generalPool(h), plans = [];
+    var mode = S.mode, mixed = false;
+    if (mode === 'mezcla') {
+      mixed = true;
+      var opts = [];
+      if (hp.length) opts.push('heroe');
+      if (gp.length) opts.push('general');
+      mode = opts.length ? pick(opts) : 'heroe';
+    }
+    if (mode === 'heroe' || mode === 'doble') {
+      if (hp.length) plans.push({ src: 'heroe', pool: hp });
+      else if (mode === 'heroe' && gp.length) { plans.push({ src: 'general', pool: gp }); notice(h.name + ' no tiene retos con esa dificultad: sale uno general.'); }
+      else notice(h.name + ' no tiene retos propios con estos filtros.');
+    }
+    if (mode === 'general' || mode === 'doble') {
+      if (gp.length) plans.push({ src: 'general', pool: gp });
+      else if (mode === 'general' && hp.length) { plans.push({ src: 'heroe', pool: hp }); notice('No hay retos generales con estos filtros: sale uno del héroe.'); }
+      else notice('No hay retos generales con estos filtros.');
+    }
+    return { plans: plans, mixed: mixed, filler: mixed ? hp.concat(gp) : null };
+  }
+  function srcLabel(h, r) {
+    return r.src === 'heroe' ? 'Reto del héroe' : 'Reto general · ' + CAT_LABEL[r.cat];
+  }
+
+  /* ---------- Rodillo de retos ---------- */
+  function makeReelBlock(label) {
+    var b = { wrap: el('div', 'reto'), lab: el('div', 'reto-label', label), box: el('div', 'reel'), track: el('div', 'reel-track'), meta: el('div', 'reto-meta') };
+    b.box.appendChild(b.track);
+    b.wrap.appendChild(b.lab); b.wrap.appendChild(b.box); b.wrap.appendChild(b.meta);
+    return b;
+  }
+  function spinReel(b, filler, chosen, dur) {
+    return new Promise(function (resolve) {
+      var rm = reduced();
+      var n = rm ? 3 : 16 + randInt(6);
+      var texts = [];
+      for (var i = 0; i < n - 1; i++) texts.push(pick(filler).t);
+      texts.push(chosen.t);
+      b.track.textContent = '';
+      texts.forEach(function (t) { var row = el('div', 'reel-row'); row.appendChild(el('span', null, t)); b.track.appendChild(row); });
+      var rowH = b.box.clientHeight || 130;
+      var total = (n - 1) * rowH;
+      var t0 = performance.now(), lastRow = 0, lastPos = 0;
+      var d = rm ? 350 : dur;
+      function frame(now) {
+        var p = Math.min(1, (now - t0) / d);
+        var pos = total * (1 - Math.pow(1 - p, 3));
+        b.track.style.transform = 'translateY(' + (-pos) + 'px)';
+        if (!rm) {
+          var speed = Math.abs(pos - lastPos);
+          b.track.style.filter = speed > 12 ? 'blur(' + Math.min(3, speed / 20).toFixed(1) + 'px)' : 'none';
+        }
+        lastPos = pos;
+        var r = Math.round(pos / rowH);
+        if (r !== lastRow) { lastRow = r; tick(true); }
+        if (p < 1) requestAnimationFrame(frame);
+        else {
+          var fin = el('p', 'reel-final', chosen.t);
+          b.box.textContent = '';
+          b.box.appendChild(fin);
+          b.box.classList.add('stopped');
+          resolve();
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  /* ---------- Resultado ---------- */
+  function clearResult() {
+    var res = $('result');
+    res.removeAttribute('data-role');
+    res.classList.remove('revealing');
+    var hn = $('heroName');
+    hn.className = 'hero-name idle';
+    hn.textContent = 'Girando…';
+    $('heroMeta').textContent = '';
+    $('retos').textContent = '';
+  }
+  function revealHero(h) {
+    var res = $('result');
+    res.setAttribute('data-role', h.role);
+    var hn = $('heroName');
+    hn.className = 'hero-name';
+    hn.textContent = h.name;
+    res.classList.remove('revealing');
+    void res.offsetWidth;
+    res.classList.add('revealing');
+    var meta = $('heroMeta');
+    meta.textContent = '';
+    var t = el('span', 'tag role-' + h.role);
+    var inner = el('span'); inner.appendChild(roleIcon(h.role)); inner.appendChild(document.createTextNode(ROLE_LABEL[h.role]));
+    t.appendChild(inner); meta.appendChild(t);
+    if (h.subrole) { var ts = el('span', 'tag muted'); ts.appendChild(el('span', null, h.subrole)); meta.appendChild(ts); }
+    fanfare();
+  }
+  function rollRetos(h, tag) {
+    var box = $('retos');
+    box.textContent = '';
+    var plan = planRetos(h);
+    if (!plan.plans.length) {
+      box.appendChild(el('p', 'placeholder', 'Sin reto disponible con estos filtros. Ajusta dificultad o categorías.'));
+      addHistory(h, [], tag);
+      return Promise.resolve();
+    }
+    var chosen = plan.plans.map(function (p) { return chooseReto(p.pool); });
+    var blocks = plan.plans.map(function (p, i) {
+      var label = plan.mixed ? 'Reto' : srcLabel(h, chosen[i]);
+      var b = makeReelBlock(label);
+      box.appendChild(b.wrap);
+      return b;
+    });
+    return Promise.all(blocks.map(function (b, i) {
+      var filler = plan.filler || plan.plans[i].pool;
+      return spinReel(b, filler, chosen[i], 2100 + i * 800).then(function () {
+        var r = chosen[i];
+        b.lab.textContent = srcLabel(h, r);
+        b.meta.appendChild(diffEl(r.d));
+        thunk();
+      });
+    })).then(function () { addHistory(h, chosen, tag); });
+  }
+
+  /* ---------- Flujo principal ---------- */
+  function setBusy(v) {
+    busy = v;
+    updateButtons();
+    if (!v && dirty) { dirty = false; refreshWheel(); }
+  }
+  function updateButtons() {
+    var none = !activeHeroes().length;
+    $('btnSpin').setAttribute('aria-disabled', busy || none ? 'true' : 'false');
+    $('btnHero').setAttribute('aria-disabled', busy || none || !current ? 'true' : 'false');
+    $('btnReto').setAttribute('aria-disabled', busy || !current ? 'true' : 'false');
+  }
+  function spinHero(isReroll) {
+    if (busy) return;
+    ensureAudio();
+    refreshWheel();
+    if (!wheelList.length) { notice(HAS_DATA ? 'No hay héroes en juego: revisa los filtros.' : 'No se han cargado los datos de héroes.'); return; }
+    if (isReroll && !current) return;
+    setBusy(true);
+    if (isReroll) bumpReroll();
+    var h = chooseHero(wheelList, isReroll && current ? current.hero.id : null);
+    var idx = wheelList.indexOf(h);
+    winner = -1;
+    clearResult();
+    spinWheelTo(idx).then(function () {
+      winner = idx;
+      seenHeroes.add(h.id);
+      current = { hero: h };
+      drawWheel();
+      revealHero(h);
+      updateCounts();
+      return wait(reduced() ? 80 : 550);
+    }).then(function () {
+      return rollRetos(h, isReroll ? 'héroe re-tirado' : null);
+    }).then(function () { setBusy(false); }, function () { setBusy(false); });
+  }
+  function rerollReto() {
+    if (busy || !current) return;
+    ensureAudio();
+    setBusy(true);
+    bumpReroll();
+    rollRetos(current.hero, 'reto re-tirado').then(function () { setBusy(false); }, function () { setBusy(false); });
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function bumpReroll() {
+    if (!S.countRerolls) return;
+    rerolls++;
+    $('rerollCount').textContent = String(rerolls);
+  }
+
+  /* ---------- Historial ---------- */
+  function hhmm(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  function addHistory(h, retos, tag) {
+    history.unshift({ time: hhmm(new Date()), hero: h, retos: retos.slice(), tag: tag });
+    renderHistory();
+  }
+  function renderHistory() {
+    var ol = $('histList');
+    ol.textContent = '';
+    $('histEmpty').hidden = history.length > 0;
+    history.forEach(function (e) {
+      var li = el('li', 'feed-row role-' + e.hero.role);
+      li.appendChild(el('span', 'h-time', e.time));
+      var hw = el('div');
+      var hd = el('div', 'h-hero disp');
+      hd.appendChild(roleIcon(e.hero.role)); hd.appendChild(document.createTextNode(e.hero.name));
+      hw.appendChild(hd);
+      if (e.tag) hw.appendChild(el('span', 'h-tag', e.tag));
+      li.appendChild(hw);
+      var rs = el('div', 'h-retos');
+      if (!e.retos.length) rs.appendChild(el('div', 'h-reto', 'Sin reto disponible'));
+      e.retos.forEach(function (r) {
+        var d = el('div', 'h-reto');
+        d.appendChild(document.createTextNode(r.t + ' '));
+        d.appendChild(el('em', null, '(' + (r.src === 'heroe' ? 'héroe' : CAT_LABEL[r.cat]) + ' · ' + DIFF_LABEL[r.d] + ')'));
+        rs.appendChild(d);
+      });
+      li.appendChild(rs);
+      ol.appendChild(li);
+    });
+  }
+  function historyText() {
+    return history.slice().reverse().map(function (e) {
+      var rs = e.retos.length ? e.retos.map(function (r) { return r.t + ' [' + DIFF_LABEL[r.d] + ']'; }).join(' + ') : 'sin reto';
+      return '[' + e.time + '] ' + e.hero.name + ' (' + ROLE_LABEL[e.hero.role] + ') — ' + rs + (e.tag ? ' (' + e.tag + ')' : '');
+    }).join('\n');
+  }
+  function copyHistory() {
+    var msg = $('copyMsg');
+    var fb = $('copyFallback');
+    if (!history.length) { msg.textContent = 'No hay nada que copiar todavía.'; return; }
+    var text = historyText();
+    function fallback() {
+      fb.hidden = false; fb.value = text; fb.focus(); fb.select();
+      var ok = false;
+      try { ok = document.execCommand && document.execCommand('copy'); } catch (e) { ok = false; }
+      msg.textContent = ok ? 'Copiado.' : 'Texto seleccionado: pulsa Ctrl+C (o Cmd+C) para copiarlo.';
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { fb.hidden = true; msg.textContent = 'Copiado al portapapeles.'; }, fallback);
+      } else fallback();
+    } catch (e) { fallback(); }
+  }
+
+  /* ---------- Panel: construcción ---------- */
+  function chip(label, cls, pressed, onClick, pre) {
+    var b = el('button', 'chip' + (cls ? ' ' + cls : ''));
+    var inner = el('span');
+    if (pre) inner.appendChild(pre);
+    inner.appendChild(document.createTextNode(label));
+    b.appendChild(inner);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    b.addEventListener('click', onClick);
+    return b;
+  }
+  function toggleSet(set, v) { if (set.has(v)) set.delete(v); else set.add(v); }
+  function onFiltersChanged() { save(); renderPanel(); refreshWheel(); }
+
+  function renderModes() {
+    var box = $('modes'); box.textContent = '';
+    MODES.forEach(function (m) {
+      var lab = el('label', 'mode-opt');
+      var inp = document.createElement('input');
+      inp.type = 'radio'; inp.name = 'mode'; inp.value = m.v; inp.checked = S.mode === m.v;
+      inp.addEventListener('change', function () { if (inp.checked) { S.mode = m.v; save(); } });
+      lab.appendChild(inp); lab.appendChild(el('span', null, m.l));
+      box.appendChild(lab);
+    });
+  }
+  function renderPanel() {
+    var rc = $('roleChips'); rc.textContent = '';
+    ROLES.forEach(function (r) {
+      rc.appendChild(chip(ROLE_LABEL[r], 'c-' + r, S.roles.has(r), function () { toggleSet(S.roles, r); onFiltersChanged(); }, roleIcon(r)));
+    });
+
+    var sc = $('subroleChips'); sc.textContent = '';
+    var anySub = false;
+    ROLES.forEach(function (r) {
+      var subs = DATA.subroles[r];
+      if (!subs.length) return;
+      anySub = true;
+      var g = el('div', 'sub-role');
+      var sn = el('div', 'sub-role-name'); sn.appendChild(roleIcon(r)); sn.appendChild(document.createTextNode(ROLE_LABEL[r]));
+      g.appendChild(sn);
+      var cs = el('div', 'chips');
+      subs.forEach(function (s) {
+        var k = r + ':' + s;
+        var c = chip(s, 'c-' + r, S.subroles.has(k), function () { toggleSet(S.subroles, k); onFiltersChanged(); });
+        c.disabled = !S.roles.has(r);
+        cs.appendChild(c);
+      });
+      g.appendChild(cs);
+      sc.appendChild(g);
+    });
+    $('subroleGroup').hidden = !anySub;
+
+    var dc = $('diffChips'); dc.textContent = '';
+    [1, 2, 3].forEach(function (d) {
+      dc.appendChild(chip(DIFF_LABEL[d], 'c-d' + d, S.diffs.has(d), function () { toggleSet(S.diffs, d); onFiltersChanged(); }, diffEl(d, false)));
+    });
+
+    var cc = $('catChips'); cc.textContent = '';
+    CATS_PRESENT.forEach(function (c) {
+      cc.appendChild(chip(CAT_LABEL[c], '', S.cats.has(c), function () { toggleSet(S.cats, c); onFiltersChanged(); }));
+    });
+    $('catGroup').hidden = !CATS_PRESENT.length;
+
+    syncHeroList();
+  }
+
+  var heroItems = [];
+  function buildHeroList() {
+    var ul = $('heroList'); ul.textContent = '';
+    heroItems = DATA.heroes.map(function (h) {
+      var li = el('li', 'role-' + h.role);
+      var lab = el('label');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.addEventListener('change', function () {
+        if (cb.checked) S.excluded.delete(h.id); else S.excluded.add(h.id);
+        save(); syncHeroList(); refreshWheel();
+      });
+      lab.appendChild(cb);
+      var hn = el('span', 'hn disp');
+      hn.appendChild(roleIcon(h.role)); hn.appendChild(document.createTextNode(h.name));
+      lab.appendChild(hn);
+      lab.appendChild(el('span', 'sub', h.subrole || ROLE_LABEL[h.role]));
+      li.appendChild(lab);
+      ul.appendChild(li);
+      return { h: h, li: li, cb: cb, key: norm(h.name) };
+    });
+  }
+  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function syncHeroList() {
+    var q = norm($('heroSearch').value.trim());
+    var visible = 0;
+    heroItems.forEach(function (it) {
+      var on = !S.excluded.has(it.h.id);
+      it.cb.checked = on;
+      it.li.classList.toggle('off', !on);
+      var show = !q || it.key.indexOf(q) >= 0;
+      it.li.hidden = !show;
+      if (show) visible++;
+    });
+    var exc = DATA.heroes.filter(function (h) { return S.excluded.has(h.id); }).length;
+    $('heroListHint').textContent = (exc ? exc + ' excluidos a mano. ' : '') + (q ? visible + ' coinciden con la búsqueda. «Todos/Ninguno» afecta solo a ellos.' : '');
+  }
+  function setVisibleHeroes(on) {
+    heroItems.forEach(function (it) {
+      if (it.li.hidden) return;
+      if (on) S.excluded.delete(it.h.id); else S.excluded.add(it.h.id);
+    });
+    save(); syncHeroList(); refreshWheel();
+  }
+
+  /* ---------- Opciones ---------- */
+  function bindOptions() {
+    var map = { optNoRepHero: 'noRepHero', optNoRepReto: 'noRepReto', optCount: 'countRerolls', optChroma: 'chroma', optFull: 'fullscreen' };
+    Object.keys(map).forEach(function (id) {
+      var inp = $(id);
+      inp.checked = !!S[map[id]];
+      inp.addEventListener('change', function () {
+        S[map[id]] = inp.checked;
+        save();
+        if (id === 'optCount') $('rerollBox').hidden = !S.countRerolls;
+        if (id === 'optChroma') document.body.classList.toggle('chroma', S.chroma);
+        if (id === 'optNoRepHero') { updateCounts(); drawWheel(); }
+      });
+    });
+    $('rerollBox').hidden = !S.countRerolls;
+    document.body.classList.toggle('chroma', S.chroma);
+  }
+  function setMuted(m) {
+    S.muted = m;
+    $('btnMute').setAttribute('aria-pressed', m ? 'true' : 'false');
+    $('muteLbl').textContent = m ? 'Silenciado' : 'Sonido';
+    var w = $('muteWave'); if (w) w.style.display = m ? 'none' : '';
+    save();
+  }
+
+  /* ---------- Modo stream ---------- */
+  function enterStream() {
+    document.body.classList.add('stream');
+    if (S.fullscreen) {
+      try {
+        var p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+        if (p && p.catch) p.catch(function () { });
+      } catch (e) { }
+    }
+    setTimeout(function () { resizeCanvas(); $('sbExit').focus(); }, 60);
+  }
+  function exitStream() {
+    document.body.classList.remove('stream');
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) { var p = document.exitFullscreen(); if (p && p.catch) p.catch(function () { }); }
+    } catch (e) { }
+    setTimeout(function () { resizeCanvas(); $('btnStream').focus(); }, 60);
+  }
+
+  /* ---------- Eventos ---------- */
+  function guard(fn) { return function (e) { if (e.currentTarget.getAttribute('aria-disabled') === 'true') return; fn(); }; }
+  $('btnSpin').addEventListener('click', guard(function () { spinHero(false); }));
+  $('btnHero').addEventListener('click', guard(function () { spinHero(true); }));
+  $('btnReto').addEventListener('click', guard(rerollReto));
+  $('sbSpin').addEventListener('click', function () { spinHero(false); });
+  $('sbReto').addEventListener('click', rerollReto);
+  $('sbExit').addEventListener('click', exitStream);
+  $('btnStream').addEventListener('click', enterStream);
+  $('btnRerollReset').addEventListener('click', function () { rerolls = 0; $('rerollCount').textContent = '0'; });
+  $('btnMute').addEventListener('click', function () { ensureAudio(); setMuted(!S.muted); });
+  $('btnPanel').addEventListener('click', function () {
+    var p = $('panel'), open = !p.classList.contains('open');
+    p.classList.toggle('open', open);
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $('btnCopy').addEventListener('click', copyHistory);
+  $('btnClear').addEventListener('click', function () {
+    if (!history.length) return;
+    $('clearConfirm').hidden = false; this.hidden = true; $('btnClearNo').focus();
+  });
+  $('btnClearNo').addEventListener('click', function () { $('clearConfirm').hidden = true; $('btnClear').hidden = false; $('btnClear').focus(); });
+  $('btnClearYes').addEventListener('click', function () {
+    history = []; renderHistory();
+    $('clearConfirm').hidden = true; $('btnClear').hidden = false; $('btnClear').focus();
+    $('copyMsg').textContent = ''; $('copyFallback').hidden = true;
+  });
+  $('heroSearch').addEventListener('input', syncHeroList);
+  $('btnAll').addEventListener('click', function () { setVisibleHeroes(true); });
+  $('btnNone').addEventListener('click', function () { setVisibleHeroes(false); });
+  $('btnResetFilters').addEventListener('click', function () {
+    defaultsFilters(); $('heroSearch').value = ''; save(); renderPanel(); refreshWheel(); notice('Filtros restablecidos.');
+  });
+  $('btnResetRound').addEventListener('click', function () {
+    seenHeroes.clear(); usedRetos.clear(); updateCounts(); drawWheel(); notice('Rondas reiniciadas: vuelven a entrar todos los héroes y retos.');
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('stream')) { exitStream(); return; }
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    var t = e.target;
+    var tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'A' || (t && t.isContentEditable)) return;
+    if (e.repeat) { e.preventDefault(); return; }
+    e.preventDefault();
+    spinHero(false);
+  });
+
+  /* ---------- Arranque ---------- */
+  readColors();
+  renderModes();
+  buildHeroList();
+  renderPanel();
+  bindOptions();
+  setMuted(S.muted);
+  $('dataVer').textContent = HAS_DATA
+    ? 'Datos: versión ' + (DATA.version || '—') + ' · ' + DATA.heroes.length + ' héroes · ' + DATA.generales.length + ' retos generales'
+    : 'No se han encontrado datos de héroes.';
+  if (!HAS_DATA) notice('No se han cargado los datos de héroes (window.OW_DATA).');
+  wheelList = activeHeroes();
+  computeSegColors();
+  updateCounts();
+  if (window.ResizeObserver) new ResizeObserver(function () { resizeCanvas(); }).observe(wrap);
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { drawWheel(); });
+  if (document.fonts && document.fonts.load) {
+    try {
+      Promise.all([document.fonts.load('italic 800 20px Saira'), document.fonts.load('italic 900 20px Saira')])
+        .then(function () { drawWheel(); }, function () { });
+    } catch (e) { }
+  }
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', function () { drawWheel(); });
+  renderHistory();
+})();
+</script>
+
+</body>
+</html>
