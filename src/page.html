@@ -51,7 +51,6 @@
   --d1: #45e0a6;
   --d2: #ffb341;
   --d3: #ff6a7d;
-  --chroma: #00ff00;
   /* tipografía */
   --font-display: "Saira", "Ruleta Display", Impact, "Arial Narrow", sans-serif;
   --font-ui: "Barlow Condensed", "Ruleta Texto", "Arial Narrow", sans-serif;
@@ -189,13 +188,6 @@ button[aria-disabled="true"], button:disabled { cursor: not-allowed; }
 .counter small { font-family: var(--font-ui); font-weight: 600; font-size: .9rem; text-transform: uppercase; color: var(--text-3); letter-spacing: .04em; }
 .counter.in-play svg { color: var(--pink-hot); }
 .counter.rr svg { color: var(--orange); }
-.icon-btn {
-  display: flex; align-items: center; justify-content: center; width: 52px; flex: none; border: 0; background: none; color: var(--white);
-}
-.icon-btn svg { width: 26px; height: 26px; }
-.icon-btn:hover { background: var(--bar-seg-hi); }
-.icon-btn:focus-visible { outline-offset: -4px; }
-.icon-btn[aria-pressed="true"] { color: var(--pink-hot); }
 
 /* ===== Fila de modos ===== */
 .modes-row { padding: 26px 40px 8px 28px; }
@@ -216,20 +208,21 @@ button[aria-disabled="true"], button:disabled { cursor: not-allowed; }
   mask-image: linear-gradient(90deg, transparent, #000 55%);
   opacity: .9;
 }
-.mode-opt:nth-child(1) .mode-card { --art: rgba(111, 180, 255, .45); }
-.mode-opt:nth-child(2) .mode-card { --art: rgba(69, 224, 166, .38); }
-.mode-opt:nth-child(3) .mode-card { --art: rgba(255, 154, 46, .38); }
-.mode-opt:nth-child(4) .mode-card { --art: rgba(63, 210, 245, .40); }
+/* --art: brillo del arte; --sel-a/--sel-b: degradado al estar seleccionado (tonos oscurecidos para que el texto blanco se lea) */
+.mode-opt:nth-child(1) .mode-card { --art: rgba(111, 180, 255, .45); --sel-a: #4f94e6; --sel-b: #2f6cc0; --sel-art: rgba(10, 30, 80, .45); }
+.mode-opt:nth-child(2) .mode-card { --art: rgba(69, 224, 166, .38); --sel-a: #25b890; --sel-b: #15866a; --sel-art: rgba(5, 50, 40, .45); }
+.mode-opt:nth-child(3) .mode-card { --art: rgba(255, 154, 46, .38); --sel-a: #f0902f; --sel-b: #c4621a; --sel-art: rgba(80, 30, 5, .45); }
+.mode-opt:nth-child(4) .mode-card { --art: rgba(63, 210, 245, .40); --sel-a: #2bb5da; --sel-b: #17849f; --sel-art: rgba(5, 45, 65, .45); }
 .mode-in { position: relative; z-index: 1; transform: skewX(var(--unskew)); display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; min-width: 0; }
 .mode-in svg { width: 24px; height: 24px; }
 .mode-t { font-family: var(--font-ui); font-weight: 700; font-size: 1.4rem; line-height: 1.05; text-transform: uppercase; color: var(--white); }
 .mode-s { grid-column: 1 / -1; font-family: var(--font-ui); font-weight: 600; font-size: 1.02rem; text-transform: uppercase; color: var(--text-2); letter-spacing: .02em; }
 .mode-s b { color: var(--cyan); font-weight: 700; }
 .mode-opt:hover .mode-card { background: var(--card-hi); }
-.mode-opt input:checked + .mode-card { background: linear-gradient(180deg, var(--pink-hot), var(--pink) 60%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+.mode-opt input:checked + .mode-card { background: linear-gradient(180deg, var(--sel-a, var(--pink-hot)), var(--sel-b, var(--pink)) 60%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
 .mode-opt input:checked + .mode-card .mode-s { color: var(--white); }
 .mode-opt input:checked + .mode-card .mode-s b { color: var(--ink); }
-.mode-opt input:checked + .mode-card::after { --art: rgba(80, 10, 30, .5); }
+.mode-opt input:checked + .mode-card::after { --art: var(--sel-art, rgba(80, 10, 30, .5)); }
 .mode-opt input:focus-visible + .mode-card { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 /* ===== Escenario ===== */
@@ -303,6 +296,47 @@ button.qcard:hover { background: var(--card-hi); }
   opacity: 0; pointer-events: none; transition: opacity .12s;
 }
 .sq:hover::after, .sq:focus-visible::after { opacity: 1; }
+/* Con ratón la explicación sale en el tooltip propio (.ow-tip), no en la etiqueta CSS */
+@media (hover: hover) and (min-width: 861px) {
+  .sq[data-desc]::after { content: none; }
+}
+
+/* ===== Tooltip propio (sustituye al title nativo) ===== */
+.ow-tip {
+  position: fixed; left: 0; top: 0; z-index: 100; max-width: min(300px, calc(100vw - 24px));
+  pointer-events: none; opacity: 0; visibility: hidden;
+  transition: opacity .14s ease, transform .14s ease, visibility 0s linear .14s;
+  filter: drop-shadow(0 10px 22px rgba(8, 12, 30, .55));
+}
+.ow-tip.show { opacity: 1; visibility: visible; transition: opacity .14s ease, transform .14s ease, visibility 0s; }
+.ow-tip-box {
+  position: relative; padding: 9px 14px 10px 17px; transform: skewX(var(--skew));
+  background: linear-gradient(180deg, rgba(40, 49, 86, .98), rgba(21, 26, 47, .98));
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+}
+.ow-tip-box::before {
+  content: ""; position: absolute; left: 0; top: -1px; bottom: -1px; width: 5px;
+  background: linear-gradient(180deg, var(--pink-hot), var(--pink-deep)); border-radius: var(--r-sm) 0 0 var(--r-sm);
+}
+.ow-tip-in { transform: skewX(var(--unskew)); }
+.ow-tip-h {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 3px;
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.02rem; line-height: 1.1; letter-spacing: .03em; text-transform: uppercase; color: var(--cyan);
+}
+.ow-tip-b { font-family: var(--font-body); font-weight: 500; font-size: .95rem; line-height: 1.3; color: var(--text); }
+.ow-tip-k { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-family: var(--font-ui); font-weight: 600; font-size: .85rem; letter-spacing: .03em; text-transform: uppercase; color: var(--text-3); }
+.ow-tip-k kbd { font-size: .85rem; border-color: rgba(63, 210, 245, .55); color: var(--cyan); }
+/* flecha: rombo girado, apunta al elemento */
+.ow-tip-arrow {
+  position: absolute; width: 12px; height: 12px; margin-left: -6px;
+  background: rgb(21, 26, 47); border: 1px solid var(--line-strong); transform: rotate(45deg);
+}
+.ow-tip[data-side="top"] .ow-tip-arrow { bottom: -6px; border-top: 0; border-left: 0; }
+.ow-tip[data-side="bottom"] .ow-tip-arrow { top: -6px; border-bottom: 0; border-right: 0; background: rgb(40, 49, 86); }
+.ow-tip[data-side="top"] { transform: translateY(6px); }
+.ow-tip[data-side="bottom"] { transform: translateY(-6px); }
+.ow-tip.show[data-side] { transform: none; }
+@media (hover: none) { .ow-tip { display: none; } }
 
 /* ===== Derecha: retos (escuadrón) ===== */
 .col-right { padding-top: 16px; }
@@ -351,12 +385,7 @@ button.qcard:hover { background: var(--card-hi); }
 .bottom { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 6px 40px 22px 28px; max-width: 1560px; margin: 0 auto; }
 .hint { display: flex; align-items: center; gap: 10px; font-family: var(--font-ui); font-weight: 700; font-size: 1.35rem; text-transform: uppercase; color: var(--white); text-shadow: 0 1px 6px rgba(30, 40, 90, .3); }
 .hint.r { justify-content: flex-end; }
-.praise { display: flex; align-items: stretch; border: 0; padding: 0; background: none; color: var(--white); min-height: 58px; border-radius: var(--r); }
-.praise-sq { display: flex; align-items: center; justify-content: center; width: 70px; background: var(--green); border-radius: var(--r) 0 0 var(--r); }
-.praise-sq svg { width: 32px; height: 32px; }
-.praise-lbl { display: flex; align-items: center; gap: 12px; padding: 0 26px 0 20px; background: var(--navy); border-radius: 0 var(--r) var(--r) 0; font-family: var(--font-ui); font-weight: 700; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .02em; }
-.praise:hover .praise-sq { background: var(--green-hot); }
-.praise[aria-disabled="true"] { opacity: .5; }
+.hint.c { justify-content: center; }
 
 /* ===== Paneles superpuestos ===== */
 .overlay {
@@ -381,39 +410,108 @@ button.qcard:hover { background: var(--card-hi); }
 .pbtn.solid { background: var(--white); color: var(--ink); border-color: var(--white); }
 .pbtn.danger { color: var(--danger); border-color: rgba(255, 106, 125, .5); }
 .pbtn.go { background: var(--pink); border-color: var(--pink); }
-.opt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
-.group { border: 0; margin: 0; padding: 14px 0; min-width: 0; }
-.group legend { float: left; width: 100%; padding: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-family: var(--font-ui); font-weight: 700; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-2); }
-.group legend::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
-.group legend + * { clear: both; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px 10px; padding: 0 6px; }
-.chip {
-  display: inline-flex; align-items: center; min-height: 42px; padding: 4px 16px; transform: skewX(var(--skew));
-  border: 0; border-radius: var(--r-sm); background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--white);
-  font-family: var(--font-ui); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .02em;
+/* ===== Opciones: estilo menú de ajustes del juego ===== */
+.opts { max-width: 1440px; background: var(--bar); }
+/* Fondo opaco y sin desenfoque: con tanto texto, lo que se ve detrás solo cansa la vista */
+#panel { background: rgba(12, 15, 32, .72); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.opts-top { display: flex; align-items: stretch; gap: 16px; padding: 14px 22px 0; }
+.opts-tabs { display: flex; gap: 4px; margin-right: auto; overflow-x: auto; scrollbar-width: none; }
+.opts-tab {
+  position: relative; min-height: 46px; padding: 0 26px; border: 0; background: var(--bar-seg); color: var(--text-2);
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.3rem; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
 }
-.chip > span { display: inline-flex; align-items: center; gap: 8px; transform: skewX(var(--unskew)); }
-.chip:hover { background: rgba(255, 255, 255, .13); }
-.chip[aria-pressed="true"] { background: var(--white); color: var(--ink); box-shadow: inset 0 -4px 0 var(--pink); }
-.chip[aria-pressed="true"] .ri.role-tank { color: #1f6fd0; } .chip[aria-pressed="true"] .ri.role-damage { color: #d0303a; } .chip[aria-pressed="true"] .ri.role-support { color: #10915f; }
-.chip:disabled { opacity: .35; }
-.chip .diff .bars i { width: 6px; height: 12px; }
-.chip[aria-pressed="true"] .diff .bars i:not(.on) { background: rgba(27, 33, 62, .2); }
-.sub-role { margin-top: 6px; }
-.sub-role-name { display: flex; align-items: center; gap: 6px; margin: 8px 6px; font-family: var(--font-ui); font-weight: 700; font-size: .95rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); }
-.checks { display: grid; }
-.check { display: flex; align-items: center; gap: 14px; padding: 9px 6px; cursor: pointer; font-size: 1.05rem; border-bottom: 1px solid var(--line); }
-.check input {
-  -webkit-appearance: none; appearance: none; margin: 0 4px 0 2px; flex: none; width: 48px; height: 24px; transform: skewX(var(--skew)); cursor: pointer;
-  border: 1.5px solid var(--line-strong); border-radius: var(--r-sm);
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14'%3E%3Crect width='18' height='14' rx='3' fill='%239aa6d6'/%3E%3C/svg%3E") no-repeat 3px 50% / 18px 14px, rgba(0, 0, 0, .25);
+.opts-tab:hover { background: var(--bar-seg-hi); color: var(--white); }
+.opts-tab[aria-selected="true"] { background: var(--white); color: var(--ink); box-shadow: inset 0 -4px 0 var(--pink); }
+.opts-top .pbtn { align-self: center; }
+.opts-body {
+  flex: 1; min-height: 0; display: grid; grid-template-columns: 230px minmax(0, 1fr) 290px; gap: 22px;
+  padding: 18px 22px; border-top: 2px solid rgba(255, 255, 255, .85); margin-top: -2px;
 }
-.check input:checked { border-color: var(--pink); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14'%3E%3Crect width='18' height='14' rx='3' fill='%23f2f3f8'/%3E%3C/svg%3E") no-repeat calc(100% - 3px) 50% / 18px 14px, var(--pink); }
-.link-btn { background: none; border: 0; padding: 6px 2px; color: var(--text-2); text-decoration: underline; text-decoration-color: var(--pink); text-underline-offset: 4px; font-size: 1rem; }
-.link-btn:hover { color: var(--white); }
+/* barra lateral */
+.opts-side { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.side-item {
+  position: relative; min-height: 40px; padding: 0 16px; text-align: left; border: 0; background: var(--bar-seg); color: var(--white);
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.12rem; letter-spacing: .04em; text-transform: uppercase;
+}
+.side-item:hover { background: var(--bar-seg-hi); }
+.side-item[aria-current="true"] { background: var(--white); color: var(--ink); }
+.side-item[aria-current="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--pink); }
+/* filas */
+.opts-main { overflow: auto; min-height: 0; padding-right: 4px; scrollbar-width: thin; }
+.opts-sec { margin-bottom: 26px; }
+.opts-sec:last-child { margin-bottom: 0; }
+.opts-h { margin: 0 0 8px; font-family: var(--font-ui); font-weight: 700; font-size: 1.2rem; letter-spacing: .05em; text-transform: uppercase; color: var(--white); text-shadow: 0 1px 4px rgba(20, 26, 60, .5); }
+.opts-sub { display: flex; align-items: center; gap: 7px; margin: 14px 0 6px; font-family: var(--font-ui); font-weight: 700; font-size: .98rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-2); }
+.opts-sub:first-child { margin-top: 0; }
+.opts-rows { display: grid; gap: 3px; }
+.orow {
+  position: relative; display: flex; align-items: center; gap: 16px; min-height: 40px; padding: 3px 3px 3px 14px;
+  background: var(--bar-seg); cursor: pointer; transition: background .12s;
+}
+.orow:hover { background: var(--bar-seg-hi); }
+.orow::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; }
+.orow:hover::before { background: var(--white); }
+.orow:has(input:focus-visible), .orow:has(.obtn:focus-visible) { outline: 2px solid var(--focus); outline-offset: 1px; }
+.orow:has(input:focus-visible)::before { background: var(--cyan); }
+.orow input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.orow:has(input:disabled) { opacity: .4; cursor: not-allowed; }
+.orow-l { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.orow-n { display: flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 700; font-size: 1.08rem; letter-spacing: .03em; text-transform: uppercase; color: var(--white); }
+.orow-n .diff .bars i { width: 5px; height: 11px; }
+.orow-d, .opts-desc { display: none; font-size: .9rem; line-height: 1.3; color: var(--text-3); }
+.opts-desc { margin: -2px 0 10px; font-size: .95rem; }
+/* selector ‹ ACTIVADO › */
+.sel {
+  flex: none; display: grid; grid-template-columns: 26px 1fr 26px; align-items: center; width: 230px; min-height: 34px;
+  background: #151a31; font-family: var(--font-ui); font-weight: 700; font-size: 1.02rem; letter-spacing: .05em; text-transform: uppercase; text-align: center;
+}
+.sel i { font-style: normal; font-size: 1.35rem; line-height: 1; color: var(--text-3); }
+.sel b { font-weight: 700; }
+.sel .on { color: var(--white); }
+.sel .off { color: var(--text-3); }
+.orow input:checked ~ .sel { box-shadow: inset 0 -3px 0 var(--pink); }
+.orow input:checked ~ .sel .off, .orow input:not(:checked) ~ .sel .on { display: none; }
+.orow:hover .sel i { color: var(--white); }
+.obtn {
+  flex: none; width: 230px; min-height: 34px; border: 0; background: #323b63; color: var(--white);
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.02rem; letter-spacing: .05em; text-transform: uppercase;
+}
+.obtn:hover { background: var(--white); color: var(--ink); }
+div.orow { cursor: default; }
+/* panel de descripción */
+.opts-info {
+  align-self: start; padding: 18px 20px 20px; background: var(--bar-seg); border-top: 3px solid var(--pink);
+  box-shadow: 0 10px 30px rgba(10, 14, 30, .3);
+}
+.opts-info-k { font-family: var(--font-ui); font-weight: 700; font-size: .95rem; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); }
+.opts-info-t { margin: 4px 0 10px; font-size: 2rem; line-height: .95; color: var(--white); overflow-wrap: anywhere; }
+.opts-info-d { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--text-2); }
+/* pie: teclas */
+.opts-foot { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; padding: 12px 22px 16px; border-top: 1px solid var(--line); }
+.foot-k { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 700; font-size: 1rem; letter-spacing: .03em; text-transform: uppercase; color: var(--text-2); }
+.opts-foot .data-ver { margin: 0 0 0 auto; }
 .hint-t { color: var(--text-3); font-size: .95rem; margin: 8px 0 0; }
+.ov-desc { margin: 4px 6px 0; }
 .data-ver { color: var(--text-3); font-size: .9rem; margin: 12px 0 0; }
-.opt-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding-top: 14px; }
+@media (max-width: 1180px) {
+  .opts-body { grid-template-columns: 200px minmax(0, 1fr); }
+  .opts-info { display: none; }
+  .orow-d, .opts-desc { display: block; }
+}
+@media (max-width: 860px) {
+  .opts-top { padding: 10px 12px 0; gap: 10px; }
+  .opts-tab { padding: 0 16px; font-size: 1.1rem; min-height: 42px; }
+  .opts-close { padding: 4px 12px; }
+  .opts-close-t { display: none; }
+  .opts-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 12px; padding: 12px; }
+  .opts-side { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+  .side-item { flex: none; min-height: 36px; font-size: 1rem; }
+  .orow { flex-wrap: wrap; gap: 6px 12px; padding: 8px 8px 8px 12px; }
+  .sel, .obtn { width: 100%; }
+  .opts-foot { padding: 10px 12px 12px; gap: 14px; }
+  .opts-foot .foot-k { display: none; }
+  .opts-foot .data-ver { order: 2; margin: 0; flex-basis: 100%; }
+}
 
 /* Galería de héroes */
 .hero-tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 10px 0 14px; padding: 0 6px; }
@@ -451,7 +549,6 @@ button.qcard:hover { background: var(--card-hi); }
 .h-reto { font-size: 1.05rem; overflow-wrap: anywhere; }
 .h-reto em { font-style: normal; color: var(--text-3); font-size: .9rem; }
 .empty-t { color: var(--text-3); margin: 10px 0 0; }
-.copy-fallback { width: 100%; min-height: 120px; margin-top: 10px; background: rgba(0,0,0,.3); border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px; font: .9rem/1.4 var(--font-mono); color: var(--white); }
 
 /* ===== Revelación: destello partido ===== */
 .reveal-fx { position: fixed; left: 0; right: 0; top: 50%; height: min(52vh, 480px); margin-top: calc(min(52vh, 480px) / -2); z-index: 45; pointer-events: none; visibility: hidden; overflow: hidden; }
@@ -480,32 +577,6 @@ button.qcard:hover { background: var(--card-hi); }
 
 /* ===== Aviso ===== */
 .notice { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 40; max-width: min(640px, calc(100vw - 32px)); box-shadow: 0 10px 30px rgba(10,14,30,.4); }
-
-/* ===== Barra flotante (modo stream) ===== */
-.stream-bar { position: fixed; right: 20px; bottom: 16px; z-index: 35; display: none; gap: 12px; opacity: .25; transition: opacity .2s; }
-.stream-bar:hover, .stream-bar:focus-within { opacity: 1; }
-.stream-bar .pbtn { background: var(--navy); }
-.stream-bar .pbtn.go { background: var(--pink); }
-
-/* ===== Modo stream ===== */
-body.stream .bar-left, body.stream .bar-right { visibility: hidden; }
-body.stream .modes-row, body.stream .waiting, body.stream .bottom,
-body.stream .overlay, body.stream .cfg, body.stream #inPlaySub { display: none !important; }
-body.stream .stream-bar { display: flex; top: 18px; bottom: auto; right: 24px; }
-body.stream .topbar { position: fixed; left: 0; right: 0; }
-body.stream .bar { background: transparent; box-shadow: none; }
-body.stream .stage {
-  max-width: none; min-height: 100vh; padding: calc(var(--bar-h) + 30px) 40px 30px;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center;
-}
-/* esquina superior izquierda libre para la webcam (≈480×300 a 1920) */
-body.stream .col-left { align-self: end; padding-top: max(30vh, 310px); padding-bottom: 20px; }
-body.stream .wheel-wrap { width: clamp(300px, min(44vw, calc(100vh - 150px)), 960px); }
-body.stream .hero-name { font-size: clamp(2.4rem, 3.7vw, 5.6rem); }
-body.stream .col-left .qcard { grid-template-columns: 80px minmax(0, 1fr); }
-body.stream .reel-final { font-size: clamp(1.4rem, 1.9vw, 2.3rem); }
-body.stream.chroma { background: var(--chroma); }
-body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel-wrap::before { display: none; }
 
 /* ===== Responsive ===== */
 @media (max-width: 1360px) {
@@ -540,17 +611,12 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   .col-left { order: 0; padding: 0 6px; }
   .col-right { order: 1; padding-top: 0; }
   .squad-head { text-align: left; }
-  .opt-grid { grid-template-columns: minmax(0, 1fr); }
   .overlay { padding: 12px var(--gutter); }
   .ov-head, .ov-body { padding-left: 16px; padding-right: 16px; }
   .bottom { grid-template-columns: minmax(0, 1fr); padding: 6px var(--gutter) 22px; }
   .hint { display: none; }
-  .praise { justify-self: stretch; }
-  .praise-lbl { flex: 1; }
   .feed-row { grid-template-columns: 3.8em minmax(0, 1fr); }
   .feed-row .h-retos { grid-column: 2; }
-  body.stream .stage { grid-template-columns: minmax(0, 1fr); padding-top: 90px; }
-  body.stream .col-left { padding-top: 0; }
 }
 @media (max-width: 480px) {
   body { font-size: 17px; }
@@ -564,8 +630,6 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   .sq svg { width: 26px; height: 26px; }
   .reto { grid-template-columns: 62px minmax(0, 1fr); }
   :root { --reel-h: 6.4rem; }
-  .praise-lbl { font-size: 1.15rem; padding: 0 14px; }
-  .praise-sq { width: 58px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .result.revealing .hero-name, .tab.searching .tab-emblem svg, .reto-sq .sq-q { animation: none; }
@@ -640,15 +704,10 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     <symbol id="i-shuffle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7h4l10 10h4M3 17h4l3-3M14 10l3-3h4"/><path d="m18 4 3 3-3 3M18 14l3 3-3 3"/></g></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/></g></symbol>
     <symbol id="i-swap" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM4 20c0-4 3.6-7 8-7 1.3 0 2.5.3 3.6.7L14 16h7v-7l-2.3 2.3A10 10 0 0 0 12 11c-5.5 0-10 3.8-10 9z"/></symbol>
-    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2"><rect x="8" y="8" width="12" height="13"/><path d="M16 8V3H4v13h4"/></g></symbol>
-    <symbol id="i-sound" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9h4l6-5v16l-6-5H3z"/><path fill="none" stroke="currentColor" stroke-width="2.2" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></symbol>
-    <symbol id="i-screen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="12"/><path d="M8 20h8M12 16v4"/></g></symbol>
-    <symbol id="i-gear" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="m10 2h4l.6 2.6 1.9.8 2.3-1.4 2.8 2.8-1.4 2.3.8 1.9L22 10v4l-2.6.6-.8 1.9 1.4 2.3-2.8 2.8-2.3-1.4-1.9.8L14 22h-4l-.6-2.6-1.9-.8-2.3 1.4-2.8-2.8 1.4-2.3-.8-1.9L2 14v-4l2.6-.6.8-1.9L4 5.2 6.8 2.4l2.3 1.4 1.9-.8zm2 6.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6h9v2H4zm13 0h3v2h-3zm-4-2h4v6h-4zM4 16h3v2H4zm7 0h9v2h-9zm-4-2h4v6H7z"/></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path fill="currentColor" d="M5 2h2v20H5zm3 1h12l-3 4.5L20 12H8z"/></symbol>
     <symbol id="i-squad" viewBox="0 0 24 24"><path fill="currentColor" d="M9 4a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zm7.5 1.5a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6zM2 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5zm15.5 0c0-2.3-.8-4.3-2.2-5.7 3.6-.3 6.7 1.8 6.7 5.7z"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="m12 2 2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.2l7.1-.6z"/></symbol>
-    <symbol id="i-mute" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9h4l6-5v16l-6-5H3z"/><path fill="none" stroke="currentColor" stroke-width="2.2" d="m16 9 6 6m0-6-6 6"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" d="m5 5 14 14M19 5 5 19"/></symbol>
   </defs>
 </svg>
@@ -659,13 +718,13 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       <span class="seg-home" aria-hidden="true"><svg><use href="#i-home"/></svg></span>
       <span class="bar-title disp"><span>Ruleta <em>de</em> retos</span></span>
       <nav class="nav" aria-label="Menú">
-        <button type="button" class="nav-item" id="btnPanel" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel">Opciones</button>
-        <button type="button" class="nav-item" id="navHeroes" aria-haspopup="dialog" aria-expanded="false" aria-controls="ovHeroes">Héroes</button>
-        <button type="button" class="nav-item" id="navHist" aria-haspopup="dialog" aria-expanded="false" aria-controls="ovHist">Historial<span class="ndot" id="histDot" hidden></span></button>
+        <button type="button" class="nav-item" id="btnPanel" title="Opciones: filtros de rol, dificultad, categorías, reglas y sonido" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel">Opciones</button>
+        <button type="button" class="nav-item" id="navHeroes" title="Elige qué héroes entran en la ruleta" aria-haspopup="dialog" aria-expanded="false" aria-controls="ovHeroes">Héroes</button>
+        <button type="button" class="nav-item" id="navHist" title="Lo que ha ido saliendo en esta sesión" aria-haspopup="dialog" aria-expanded="false" aria-controls="ovHist">Historial<span class="ndot" id="histDot" hidden></span></button>
       </nav>
     </div>
     <div class="tab-wrap">
-      <button type="button" class="tab" id="btnSpin" aria-keyshortcuts="Space">
+      <button type="button" class="tab" id="btnSpin" aria-keyshortcuts="Space" title="Gira la ruleta: sortea un héroe y después su reto (Espacio)">
         <span class="tab-shape" aria-hidden="true"></span>
         <span class="tab-emblem" aria-hidden="true">
           <svg viewBox="0 0 64 64">
@@ -687,11 +746,8 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       </button>
     </div>
     <div class="bar-right">
-      <span class="counter in-play" title="Héroes en juego"><svg aria-hidden="true"><use href="#i-person"/></svg><b id="inPlay">0</b><small>en juego</small></span>
-      <span class="counter rr" id="rerollBox" title="Re-tiradas"><svg aria-hidden="true"><use href="#i-redo"/></svg><b id="rerollCount">0</b><small>re-tiradas</small></span>
-      <button type="button" class="icon-btn" id="btnMute" aria-pressed="false" title="Sonido"><svg aria-hidden="true"><use id="muteWave" href="#i-sound"/></svg><span class="sr-only" id="muteLbl">Sonido</span></button>
-      <button type="button" class="icon-btn" id="btnStream" title="Modo stream"><svg aria-hidden="true"><use href="#i-screen"/></svg><span class="sr-only">Modo stream</span></button>
-      <button type="button" class="icon-btn" id="btnGear" title="Opciones" aria-haspopup="dialog" aria-controls="panel"><svg aria-hidden="true"><use href="#i-gear"/></svg><span class="sr-only">Opciones</span></button>
+      <span class="counter in-play" title="Héroes en juego: cuántos héroes entran en la ruleta con los filtros actuales"><svg aria-hidden="true"><use href="#i-person"/></svg><b id="inPlay">0</b><small>en juego</small></span>
+      <span class="counter rr" id="rerollBox" title="Re-tiradas: veces que has cambiado el héroe o el reto sin jugarlo en esta sesión"><svg aria-hidden="true"><use href="#i-redo"/></svg><b id="rerollCount">0</b><small>re-tiradas</small></span>
     </div>
   </div>
 </header>
@@ -710,7 +766,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
         <div class="hero-meta" id="heroMeta"></div>
       </div>
     </div>
-    <button type="button" class="qcard cfg" id="cfgCard" aria-haspopup="dialog" aria-controls="panel">
+    <button type="button" class="qcard cfg" id="cfgCard" title="Configuración actual. Pulsa para cambiar filtros y reglas" aria-haspopup="dialog" aria-controls="panel">
       <span class="q-block" aria-hidden="true"><svg><use href="#i-sliders"/></svg></span>
       <span class="q-body">
         <span class="q-title" id="cfgTitle">Configuración</span>
@@ -727,11 +783,8 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     <div class="waiting">
       <div class="waiting-title disp" aria-hidden="true">Mientras esperas</div>
       <div class="wait-row">
-        <button type="button" class="sq" id="wReto" data-tip="Re-tirar reto" aria-label="Solo re-tirar reto" aria-disabled="true"><svg aria-hidden="true"><use href="#i-redo"/></svg></button>
-        <button type="button" class="sq" id="btnHero" data-tip="Re-tirar héroe" aria-label="Re-tirar héroe" aria-disabled="true"><svg aria-hidden="true"><use href="#i-swap"/></svg></button>
-        <button type="button" class="sq" id="wCopy" data-tip="Copiar historial" aria-label="Copiar historial"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
-        <button type="button" class="sq" id="wMute" data-tip="Silenciar" aria-label="Silenciar" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sound"/></svg></button>
-        <button type="button" class="sq" id="wStream" data-tip="Modo stream" aria-label="Modo stream"><svg aria-hidden="true"><use href="#i-screen"/></svg></button>
+        <button type="button" class="sq" id="wReto" data-tip="Re-tirar reto" data-desc="Cambia solo el reto y mantiene el mismo héroe (tecla R). Disponible después de girar." aria-keyshortcuts="R" aria-label="Solo re-tirar reto" aria-disabled="true"><svg aria-hidden="true"><use href="#i-redo"/></svg></button>
+        <button type="button" class="sq" id="btnHero" data-tip="Re-tirar héroe" data-desc="Vuelve a girar la ruleta para cambiar de héroe (nunca repite el actual) y sortea un reto nuevo." aria-label="Re-tirar héroe" aria-disabled="true"><svg aria-hidden="true"><use href="#i-swap"/></svg></button>
       </div>
     </div>
   </section>
@@ -747,11 +800,8 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
 
 <footer class="bottom">
   <div class="hint"><kbd>Espacio</kbd> Girar</div>
-  <button type="button" class="praise" id="btnReto" aria-disabled="true" aria-keyshortcuts="R">
-    <span class="praise-sq" aria-hidden="true"><svg><use href="#i-redo"/></svg></span>
-    <span class="praise-lbl"><kbd aria-hidden="true">R</kbd> Re-tirar reto</span>
-  </button>
-  <div class="hint r"><kbd>Esc</kbd> Salir</div>
+  <div class="hint c"><kbd>R</kbd> Re-tirar reto</div>
+  <div class="hint r"><kbd>Esc</kbd> Cerrar panel</div>
 </footer>
 
 <div class="notice" id="notice" role="status" hidden></div>
@@ -765,36 +815,68 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
 
 <!-- Panel OPCIONES -->
 <div class="overlay" id="panel" role="dialog" aria-modal="true" aria-labelledby="ovOptTitle" hidden>
-  <div class="ov-inner">
-    <div class="ov-head">
-      <h2 class="ov-title disp" id="ovOptTitle">Opciones</h2>
-      <button type="button" class="pbtn" data-close><span><svg width="16" height="16" aria-hidden="true"><use href="#i-close"/></svg> Cerrar <kbd>Esc</kbd></span></button>
+  <div class="ov-inner opts">
+    <div class="opts-top">
+      <h2 class="sr-only" id="ovOptTitle">Opciones</h2>
+      <div class="opts-tabs" role="tablist" aria-label="Apartados de opciones">
+        <button type="button" class="opts-tab" role="tab" id="tabFiltros" data-tab="filtros" aria-controls="optsMain">Filtros</button>
+        <button type="button" class="opts-tab" role="tab" id="tabReglas" data-tab="reglas" aria-controls="optsMain">Reglas</button>
+        <button type="button" class="opts-tab" role="tab" id="tabSonido" data-tab="sonido" aria-controls="optsMain">Sonido</button>
+      </div>
+      <button type="button" class="pbtn opts-close" data-close aria-label="Cerrar"><span><svg width="16" height="16" aria-hidden="true"><use href="#i-close"/></svg> <span class="opts-close-t">Cerrar <kbd>Esc</kbd></span></span></button>
     </div>
-    <div class="ov-body opt-grid">
-      <div>
-        <fieldset class="group"><legend>Rol</legend><div class="chips" id="roleChips"></div></fieldset>
-        <fieldset class="group" id="subroleGroup"><legend>Subrol</legend><div id="subroleChips"></div><p class="hint-t">Sin ninguno marcado en un rol, entran todos los de ese rol.</p></fieldset>
-        <fieldset class="group"><legend>Dificultad</legend><div class="chips" id="diffChips"></div></fieldset>
-        <fieldset class="group" id="catGroup"><legend>Categorías de retos generales</legend><div class="chips" id="catChips"></div></fieldset>
-      </div>
-      <div>
-        <fieldset class="group">
-          <legend>Reglas</legend>
-          <div class="checks">
-            <label class="check"><input type="checkbox" id="optNoRepHero"> No repetir héroe hasta que salgan todos</label>
-            <label class="check"><input type="checkbox" id="optNoRepReto"> No repetir reto</label>
-            <label class="check"><input type="checkbox" id="optCount"> Contar re-tiradas</label>
-            <label class="check"><input type="checkbox" id="optChroma"> Fondo verde croma en modo stream</label>
-            <label class="check"><input type="checkbox" id="optFull"> Pantalla completa al entrar en modo stream</label>
+    <div class="opts-body">
+      <nav class="opts-side" id="optsSide" aria-label="Secciones"></nav>
+      <div class="opts-main" id="optsMain" role="tabpanel">
+        <section class="opts-sec" id="secRol" data-tab="filtros" data-page="Héroes" data-name="Rol" data-desc="Roles cuyos héroes entran en la ruleta. Los retos generales pensados para un rol solo salen con héroes de ese rol.">
+          <h3 class="opts-h">Rol</h3>
+          <div class="opts-rows" id="roleRows"></div>
+        </section>
+        <section class="opts-sec" id="secSubrol" data-tab="filtros" data-page="Héroes" data-name="Subrol" data-desc="Afina qué héroes entran dentro de cada rol. Si no marcas ninguno en un rol, entran todos los de ese rol.">
+          <h3 class="opts-h">Subrol</h3>
+          <div id="subroleRows"></div>
+        </section>
+        <section class="opts-sec" id="secDif" data-tab="filtros" data-page="Retos" data-name="Dificultad" data-desc="Solo salen retos de las dificultades activadas, tanto los del héroe como los generales.">
+          <h3 class="opts-h">Dificultad</h3>
+          <div class="opts-rows" id="diffRows"></div>
+        </section>
+        <section class="opts-sec" id="secCat" data-tab="filtros" data-page="Retos" data-name="Categorías" data-desc="Tipos de reto general que pueden salir. No afecta a los retos propios de cada héroe.">
+          <h3 class="opts-h">Categorías de retos generales</h3>
+          <div class="opts-rows" id="catRows"></div>
+        </section>
+        <section class="opts-sec" id="secTiradas" data-tab="reglas" data-page="General" data-name="Tiradas" data-desc="Cómo se comportan las tiradas durante la sesión.">
+          <h3 class="opts-h">Tiradas</h3>
+          <div class="opts-rows">
+            <label class="orow" data-desc="Los héroes que ya han salido se atenúan en la ruleta y no vuelven a salir hasta que hayan salido todos los que estén en juego."><input type="checkbox" id="optNoRepHero"><span class="orow-l"><span class="orow-n">No repetir héroe hasta que salgan todos</span></span><span class="sel" aria-hidden="true"><i>‹</i><b class="on">Activado</b><b class="off">Desactivado</b><i>›</i></span></label>
+            <label class="orow" data-desc="Cada reto sale una sola vez. Cuando se agotan los de un héroe o los generales, vuelven a entrar todos."><input type="checkbox" id="optNoRepReto"><span class="orow-l"><span class="orow-n">No repetir reto</span></span><span class="sel" aria-hidden="true"><i>‹</i><b class="on">Activado</b><b class="off">Desactivado</b><i>›</i></span></label>
+            <label class="orow" data-desc="Muestra en la barra superior cuántas veces has cambiado el héroe o el reto sin jugarlo. Sirve para ponerte un límite de cambios."><input type="checkbox" id="optCount"><span class="orow-l"><span class="orow-n">Contar re-tiradas</span></span><span class="sel" aria-hidden="true"><i>‹</i><b class="on">Activado</b><b class="off">Desactivado</b><i>›</i></span></label>
           </div>
-          <button type="button" class="link-btn" id="btnResetRound">Reiniciar rondas (héroes y retos ya salidos)</button><br>
-          <button type="button" class="link-btn" id="btnRerollReset">Poner a cero las re-tiradas</button>
-        </fieldset>
+        </section>
+        <section class="opts-sec" id="secSesion" data-tab="reglas" data-page="General" data-name="Sesión" data-desc="Acciones sobre la sesión actual. No cambian tus filtros.">
+          <h3 class="opts-h">Sesión</h3>
+          <div class="opts-rows">
+            <div class="orow" data-desc="Vuelven a entrar en el sorteo los héroes y retos que ya han salido. Solo se nota si usas «No repetir»."><span class="orow-l"><span class="orow-n">Reiniciar rondas</span></span><button type="button" class="obtn" id="btnResetRound">Reiniciar</button></div>
+            <div class="orow" data-desc="Deja el contador de re-tiradas de la barra superior en 0."><span class="orow-l"><span class="orow-n">Re-tiradas</span></span><button type="button" class="obtn" id="btnRerollReset">Poner a cero</button></div>
+          </div>
+        </section>
+        <section class="opts-sec" id="secSonido" data-tab="sonido" data-page="General" data-name="Efectos" data-desc="Efectos de la ruleta al girar y al revelar el héroe y los retos.">
+          <h3 class="opts-h">Efectos</h3>
+          <div class="opts-rows">
+            <label class="orow" data-desc="Desactívalo para jugar en silencio. Se recuerda para la próxima vez."><input type="checkbox" id="optSound"><span class="orow-l"><span class="orow-n">Efectos de sonido</span></span><span class="sel" aria-hidden="true"><i>‹</i><b class="on">Activado</b><b class="off">Desactivado</b><i>›</i></span></label>
+          </div>
+        </section>
       </div>
-      <div class="opt-foot">
-        <button type="button" class="pbtn" id="btnResetFilters"><span>Restablecer filtros</span></button>
-        <p class="data-ver" id="dataVer"></p>
-      </div>
+      <aside class="opts-info" aria-hidden="true">
+        <div class="opts-info-k" id="infoK"></div>
+        <div class="opts-info-t disp" id="infoT"></div>
+        <p class="opts-info-d" id="infoD"></p>
+      </aside>
+    </div>
+    <div class="opts-foot">
+      <span class="foot-k"><kbd>Esc</kbd> Atrás</span>
+      <span class="foot-k"><kbd>Espacio</kbd> Cambiar</span>
+      <p class="data-ver" id="dataVer"></p>
+      <button type="button" class="pbtn" id="btnResetFilters" title="Restablecer filtros: vuelve a activar todos los roles, subroles, dificultades y categorías, e incluye a todos los héroes"><span>Restablecer filtros</span></button>
     </div>
   </div>
 </div>
@@ -807,6 +889,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       <button type="button" class="pbtn" data-close><span><svg width="16" height="16" aria-hidden="true"><use href="#i-close"/></svg> Cerrar <kbd>Esc</kbd></span></button>
     </div>
     <div class="ov-body">
+      <p class="hint-t ov-desc">Desmarca un héroe para sacarlo de la ruleta aunque su rol esté activo. «Todos» y «Ninguno» marcan o desmarcan los que se ven.</p>
       <div class="hero-tools">
         <label class="sr-only" for="heroSearch">Buscar héroe</label>
         <input type="search" class="search" id="heroSearch" placeholder="Buscar héroe…" autocomplete="off">
@@ -825,8 +908,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     <div class="ov-head">
       <h2 class="ov-title disp" id="histTitle">Historial</h2>
       <div class="hist-tools">
-        <button type="button" class="pbtn solid" id="btnCopy"><span>Copiar texto</span></button>
-        <button type="button" class="pbtn danger" id="btnClear"><span>Vaciar</span></button>
+        <button type="button" class="pbtn danger" id="btnClear" title="Borra todas las tiradas guardadas en esta sesión"><span>Vaciar</span></button>
         <span class="confirm" id="clearConfirm" hidden>
           ¿Vaciar historial?
           <button type="button" class="pbtn danger" id="btnClearYes"><span>Sí, vaciar</span></button>
@@ -836,18 +918,10 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       <button type="button" class="pbtn" data-close><span><svg width="16" height="16" aria-hidden="true"><use href="#i-close"/></svg> Cerrar <kbd>Esc</kbd></span></button>
     </div>
     <div class="ov-body history">
-      <p class="hint-t" id="copyMsg" role="status"></p>
-      <textarea class="copy-fallback" id="copyFallback" readonly hidden aria-label="Texto del historial para copiar"></textarea>
       <p class="empty-t" id="histEmpty">Todavía no ha salido nada en esta sesión.</p>
       <ol id="histList"></ol>
     </div>
   </div>
-</div>
-
-<div class="stream-bar" aria-label="Controles del modo stream">
-  <button type="button" class="pbtn go" id="sbSpin"><span>Girar</span></button>
-  <button type="button" class="pbtn" id="sbReto"><span>Re-tirar reto</span></button>
-  <button type="button" class="pbtn" id="sbExit"><span>Salir (Esc)</span></button>
 </div>
 
 <script id="ow-data">/*__OW_DATA__*/</script>
@@ -862,10 +936,10 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   var CATS = ['comunicacion', 'movimiento', 'controles', 'equipo', 'castigo', 'caos', 'objetivo'];
   var CAT_LABEL = { comunicacion: 'Comunicación', movimiento: 'Movimiento', controles: 'Controles', equipo: 'Equipo', castigo: 'Castigo', caos: 'Caos', objetivo: 'Objetivo' };
   var MODES = [
-    { v: 'heroe', l: 'Reto del héroe', s: ['Retos: ', '1', ' propio'], i: 'i-person' },
-    { v: 'general', l: 'Reto general', s: ['Retos: ', '1', ' para todos'], i: 'i-globe' },
-    { v: 'doble', l: 'Héroe + general', s: ['Retos: ', '2', ' a la vez'], i: 'i-plus2' },
-    { v: 'mezcla', l: 'Mezcla aleatoria', s: ['Sorpresa: ', '50/50', ''], i: 'i-shuffle' }
+    { v: 'heroe', l: 'Reto del héroe', s: ['', '1', ' reto propio'], i: 'i-person', d: 'Sale 1 reto pensado para el héroe que toque en la ruleta.' },
+    { v: 'general', l: 'Reto general', s: ['', '1', ' reto común'], i: 'i-globe', d: 'Sale 1 reto que vale para cualquier héroe. Puedes elegir sus categorías en Opciones.' },
+    { v: 'doble', l: 'Héroe + general', s: ['', '2', ' retos a la vez'], i: 'i-plus2', d: 'Salen 2 retos que hay que cumplir a la vez: uno del héroe y uno general.' },
+    { v: 'mezcla', l: 'Mezcla aleatoria', s: ['', '1', ' reto al azar'], i: 'i-shuffle', d: 'Sale 1 reto y en cada tirada se decide al azar si es del héroe o general.' }
   ];
   function useIcon(id, cls) {
     var s = document.createElementNS(SVGNS, 'svg');
@@ -965,7 +1039,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   var S = {
     roles: new Set(ROLES), subroles: new Set(), diffs: new Set([1, 2, 3]), cats: new Set(CATS_PRESENT),
     excluded: new Set(), mode: 'heroe', noRepHero: false, noRepReto: false, countRerolls: true,
-    muted: false, chroma: false, fullscreen: false
+    muted: false
   };
   function defaultsFilters() {
     S.roles = new Set(ROLES); S.subroles = new Set(); S.diffs = new Set([1, 2, 3]);
@@ -976,7 +1050,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       localStorage.setItem(STORE_KEY, JSON.stringify({
         roles: Array.from(S.roles), subroles: Array.from(S.subroles), diffs: Array.from(S.diffs), cats: Array.from(S.cats),
         excluded: Array.from(S.excluded), mode: S.mode, noRepHero: S.noRepHero, noRepReto: S.noRepReto,
-        countRerolls: S.countRerolls, muted: S.muted, chroma: S.chroma, fullscreen: S.fullscreen
+        countRerolls: S.countRerolls, muted: S.muted
       }));
     } catch (e) { /* sin almacenamiento: seguimos igual */ }
   }
@@ -993,7 +1067,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     if (arr(o.cats)) S.cats = new Set(o.cats.filter(function (c) { return CATS.indexOf(c) >= 0; }));
     if (arr(o.excluded)) S.excluded = new Set(o.excluded.map(String));
     if (MODES.some(function (m) { return m.v === o.mode; })) S.mode = o.mode;
-    ['noRepHero', 'noRepReto', 'countRerolls', 'muted', 'chroma', 'fullscreen'].forEach(function (k) {
+    ['noRepHero', 'noRepReto', 'countRerolls', 'muted'].forEach(function (k) {
       if (typeof o[k] === 'boolean') S[k] = o[k];
     });
   }
@@ -1505,13 +1579,12 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     var none = !activeHeroes().length;
     $('btnSpin').setAttribute('aria-disabled', busy || none ? 'true' : 'false');
     $('btnHero').setAttribute('aria-disabled', busy || none || !current ? 'true' : 'false');
-    $('btnReto').setAttribute('aria-disabled', busy || !current ? 'true' : 'false');
     $('wReto').setAttribute('aria-disabled', busy || !current ? 'true' : 'false');
   }
   /* En pantallas estrechas, lleva a la vista lo que está pasando (ruleta al girar, resultado al terminar). */
   var narrowMq = window.matchMedia ? window.matchMedia('(max-width: 1200px)') : null;
   function bringIntoView(node, block) {
-    if (!node || !narrowMq || !narrowMq.matches || document.body.classList.contains('stream')) return;
+    if (!node || !narrowMq || !narrowMq.matches) return;
     var r = node.getBoundingClientRect();
     var vh = window.innerHeight || document.documentElement.clientHeight;
     if (r.top >= 0 && r.bottom <= vh) return;
@@ -1588,41 +1661,28 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       ol.appendChild(li);
     });
   }
-  function historyText() {
-    return history.slice().reverse().map(function (e) {
-      var rs = e.retos.length ? e.retos.map(function (r) { return r.t + ' [' + DIFF_LABEL[r.d] + ']'; }).join(' + ') : 'sin reto';
-      return '[' + e.time + '] ' + e.hero.name + ' (' + ROLE_LABEL[e.hero.role] + ') — ' + rs + (e.tag ? ' (' + e.tag + ')' : '');
-    }).join('\n');
-  }
-  function copyHistory() {
-    var msg = $('copyMsg');
-    var fb = $('copyFallback');
-    if (!history.length) { msg.textContent = 'No hay nada que copiar todavía.'; return; }
-    var text = historyText();
-    function fallback() {
-      fb.hidden = false; fb.value = text; fb.focus(); fb.select();
-      var ok = false;
-      try { ok = document.execCommand && document.execCommand('copy'); } catch (e) { ok = false; }
-      msg.textContent = ok ? 'Copiado.' : 'Texto seleccionado: pulsa Ctrl+C (o Cmd+C) para copiarlo.';
-    }
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () { fb.hidden = true; msg.textContent = 'Copiado al portapapeles.'; }, fallback);
-      } else fallback();
-    } catch (e) { fallback(); }
-  }
 
   /* ---------- Panel: construcción ---------- */
-  function chip(label, cls, pressed, onClick, pre) {
-    var b = el('button', 'chip' + (cls ? ' ' + cls : ''));
-    var inner = el('span');
-    if (pre) inner.appendChild(pre);
-    inner.appendChild(document.createTextNode(label));
-    b.appendChild(inner);
-    b.type = 'button';
-    b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
-    b.addEventListener('click', onClick);
-    return b;
+  var SEL_HTML = '<i>‹</i><b class="on">Activado</b><b class="off">Desactivado</b><i>›</i>';
+  // Fila tipo ajustes del juego: etiqueta a la izquierda y selector ‹ ACTIVADO › a la derecha
+  function optRow(label, on, onChange, o) {
+    o = o || {};
+    var row = el('label', 'orow' + (o.cls ? ' ' + o.cls : ''));
+    var inp = document.createElement('input');
+    inp.type = 'checkbox'; inp.checked = on; inp.disabled = !!o.disabled;
+    if (o.key) inp.setAttribute('data-key', o.key);
+    inp.addEventListener('change', onChange);
+    row.appendChild(inp);
+    if (o.desc) row.setAttribute('data-desc', o.desc);
+    var l = el('span', 'orow-l'), n = el('span', 'orow-n');
+    if (o.pre) n.appendChild(o.pre);
+    n.appendChild(document.createTextNode(label));
+    l.appendChild(n);
+    if (o.desc) l.appendChild(el('small', 'orow-d', o.desc));
+    row.appendChild(l);
+    var sel = el('span', 'sel'); sel.setAttribute('aria-hidden', 'true'); sel.innerHTML = SEL_HTML;
+    row.appendChild(sel);
+    return row;
   }
   function toggleSet(set, v) { if (set.has(v)) set.delete(v); else set.add(v); }
   function onFiltersChanged() { save(); renderPanel(); refreshWheel(); updateCfg(); }
@@ -1640,6 +1700,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     var box = $('modes'); box.textContent = '';
     MODES.forEach(function (m) {
       var lab = el('label', 'mode-opt');
+      lab.title = m.d;
       var inp = document.createElement('input');
       inp.type = 'radio'; inp.name = 'mode'; inp.value = m.v; inp.checked = S.mode === m.v;
       inp.addEventListener('change', function () { if (inp.checked) { S.mode = m.v; save(); renderSlots(); updateCfg(); } });
@@ -1656,44 +1717,135 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     });
   }
   function renderPanel() {
-    var rc = $('roleChips'); rc.textContent = '';
+    var ae = document.activeElement, fk = ae && ae.getAttribute ? ae.getAttribute('data-key') : null;
+
+    var rc = $('roleRows'); rc.textContent = '';
     ROLES.forEach(function (r) {
-      rc.appendChild(chip(ROLE_LABEL[r], 'c-' + r, S.roles.has(r), function () { toggleSet(S.roles, r); onFiltersChanged(); }, roleIcon(r)));
+      rc.appendChild(optRow(ROLE_LABEL[r], S.roles.has(r), function () { toggleSet(S.roles, r); onFiltersChanged(); },
+        { key: 'r:' + r, cls: 'c-' + r, pre: roleIcon(r), desc: 'Incluye en la ruleta a los héroes de rol ' + ROLE_LABEL[r] + '.' }));
     });
 
-    var sc = $('subroleChips'); sc.textContent = '';
+    var sc = $('subroleRows'); sc.textContent = '';
     var anySub = false;
     ROLES.forEach(function (r) {
       var subs = DATA.subroles[r];
       if (!subs.length) return;
       anySub = true;
-      var g = el('div', 'sub-role');
-      var sn = el('div', 'sub-role-name'); sn.appendChild(roleIcon(r)); sn.appendChild(document.createTextNode(ROLE_LABEL[r]));
-      g.appendChild(sn);
-      var cs = el('div', 'chips');
+      var sn = el('div', 'opts-sub'); sn.appendChild(roleIcon(r)); sn.appendChild(document.createTextNode(ROLE_LABEL[r]));
+      sc.appendChild(sn);
+      var rows = el('div', 'opts-rows');
       subs.forEach(function (s) {
         var k = r + ':' + s;
-        var c = chip(s, 'c-' + r, S.subroles.has(k), function () { toggleSet(S.subroles, k); onFiltersChanged(); });
-        c.disabled = !S.roles.has(r);
-        cs.appendChild(c);
+        rows.appendChild(optRow(s, S.subroles.has(k), function () { toggleSet(S.subroles, k); onFiltersChanged(); }, {
+          key: 's:' + k, cls: 'c-' + r, disabled: !S.roles.has(r),
+          desc: 'Limita los héroes de ' + ROLE_LABEL[r] + ' al subrol «' + s + '». Si no activas ninguno de este rol, entran todos.' +
+            (S.roles.has(r) ? '' : ' Activa antes el rol ' + ROLE_LABEL[r] + '.')
+        }));
       });
-      g.appendChild(cs);
-      sc.appendChild(g);
+      sc.appendChild(rows);
     });
-    $('subroleGroup').hidden = !anySub;
+    $('secSubrol').toggleAttribute('data-empty', !anySub);
 
-    var dc = $('diffChips'); dc.textContent = '';
+    var dc = $('diffRows'); dc.textContent = '';
     [1, 2, 3].forEach(function (d) {
-      dc.appendChild(chip(DIFF_LABEL[d], 'c-d' + d, S.diffs.has(d), function () { toggleSet(S.diffs, d); onFiltersChanged(); }, diffEl(d, false)));
+      dc.appendChild(optRow(DIFF_LABEL[d], S.diffs.has(d), function () { toggleSet(S.diffs, d); onFiltersChanged(); },
+        { key: 'd:' + d, cls: 'c-d' + d, pre: diffEl(d, false), desc: 'Pueden salir retos de dificultad «' + DIFF_LABEL[d] + '».' }));
     });
 
-    var cc = $('catChips'); cc.textContent = '';
+    var cc = $('catRows'); cc.textContent = '';
     CATS_PRESENT.forEach(function (c) {
-      cc.appendChild(chip(CAT_LABEL[c], '', S.cats.has(c), function () { toggleSet(S.cats, c); onFiltersChanged(); }));
+      cc.appendChild(optRow(CAT_LABEL[c], S.cats.has(c), function () { toggleSet(S.cats, c); onFiltersChanged(); },
+        { key: 'c:' + c, desc: 'Pueden salir retos generales de la categoría «' + CAT_LABEL[c] + '».' }));
     });
-    $('catGroup').hidden = !CATS_PRESENT.length;
+    $('secCat').toggleAttribute('data-empty', !CATS_PRESENT.length);
 
+    // al re-pintar, el foco vuelve a la misma fila
+    if (fk) $('panel').querySelectorAll('input[data-key]').forEach(function (i) { if (i.getAttribute('data-key') === fk) i.focus(); });
+    if (optSecs.length) setInfo(null);
     syncHeroList();
+  }
+
+  /* ---------- Panel: pestañas, secciones y descripción ---------- */
+  var optTab = 'filtros', optPage = null, optSecs = [], optPageOf = {};
+  function optPages(tab) {
+    var pages = [];
+    $('optsMain').querySelectorAll('.opts-sec').forEach(function (s) {
+      var pg = s.getAttribute('data-page');
+      if (s.getAttribute('data-tab') === tab && !s.hasAttribute('data-empty') && pages.indexOf(pg) < 0) pages.push(pg);
+    });
+    return pages;
+  }
+  // Pestaña arriba → páginas en la barra lateral → secciones con cabecera en el centro
+  function showOptSection(tab, page, focusSide) {
+    var pages = optPages(tab);
+    if (!pages.length) return;
+    if (pages.indexOf(page) < 0) page = pages.indexOf(optPageOf[tab]) >= 0 ? optPageOf[tab] : pages[0];
+    optTab = tab; optPage = page; optPageOf[tab] = page;
+    $('panel').querySelectorAll('.opts-tab').forEach(function (b) {
+      var on = b.getAttribute('data-tab') === tab;
+      b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+      if (on) $('optsMain').setAttribute('aria-labelledby', b.id);
+    });
+    optSecs = [];
+    $('optsMain').querySelectorAll('.opts-sec').forEach(function (s) {
+      var on = s.getAttribute('data-tab') === tab && s.getAttribute('data-page') === page && !s.hasAttribute('data-empty');
+      s.hidden = !on;
+      if (on) optSecs.push(s);
+    });
+    var nav = $('optsSide'); nav.textContent = '';
+    pages.forEach(function (pg) {
+      var b = el('button', 'side-item', pg);
+      b.type = 'button';
+      if (pg === page) b.setAttribute('aria-current', 'true');
+      b.addEventListener('click', function () { showOptSection(tab, pg, true); });
+      nav.appendChild(b);
+      if (focusSide && pg === page) b.focus();
+    });
+    $('optsMain').scrollTop = 0;
+    setInfo(null);
+  }
+  // Panel derecho: explica la fila bajo el ratón o con el foco; si no hay ninguna, la página
+  function setInfo(row) {
+    if (!optSecs.length) return;
+    var tabBtn = $('panel').querySelector('.opts-tab[aria-selected="true"]');
+    if (row) {
+      var sec = row.closest('.opts-sec');
+      $('infoK').textContent = sec.getAttribute('data-name');
+      $('infoT').textContent = row.querySelector('.orow-n').textContent;
+      $('infoD').textContent = row.getAttribute('data-desc') || sec.getAttribute('data-desc');
+    } else {
+      $('infoK').textContent = tabBtn ? tabBtn.textContent : '';
+      $('infoT').textContent = optPage;
+      $('infoD').textContent = optSecs.map(function (s) { return s.getAttribute('data-desc'); }).join(' ');
+    }
+  }
+  function bindOptPanel() {
+    var tabs = Array.prototype.slice.call($('panel').querySelectorAll('.opts-tab'));
+    tabs.forEach(function (b, i) {
+      b.addEventListener('click', function () { showOptSection(b.getAttribute('data-tab')); });
+      b.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        var nb = tabs[(i + d + tabs.length) % tabs.length];
+        showOptSection(nb.getAttribute('data-tab')); nb.focus();
+      });
+    });
+    var main = $('optsMain');
+    // descripciones en línea para pantallas sin panel derecho
+    main.querySelectorAll('.opts-sec').forEach(function (sec) {
+      var p = el('p', 'opts-desc', sec.getAttribute('data-desc'));
+      sec.insertBefore(p, sec.querySelector('.opts-h').nextSibling);
+    });
+    main.querySelectorAll('.orow[data-desc]').forEach(function (r) {
+      var l = r.querySelector('.orow-l');
+      if (!l.querySelector('.orow-d')) l.appendChild(el('small', 'orow-d', r.getAttribute('data-desc')));
+    });
+    function rowOf(e) { return e.target.closest ? e.target.closest('.orow') : null; }
+    main.addEventListener('pointerover', function (e) { var r = rowOf(e); if (r) setInfo(r); });
+    main.addEventListener('focusin', function (e) { var r = rowOf(e); if (r) setInfo(r); });
+    main.addEventListener('pointerleave', function () { if (!main.contains(document.activeElement)) setInfo(null); });
+    showOptSection('filtros');
   }
 
   var heroItems = [];
@@ -1743,7 +1895,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
 
   /* ---------- Opciones ---------- */
   function bindOptions() {
-    var map = { optNoRepHero: 'noRepHero', optNoRepReto: 'noRepReto', optCount: 'countRerolls', optChroma: 'chroma', optFull: 'fullscreen' };
+    var map = { optNoRepHero: 'noRepHero', optNoRepReto: 'noRepReto', optCount: 'countRerolls' };
     Object.keys(map).forEach(function (id) {
       var inp = $(id);
       inp.checked = !!S[map[id]];
@@ -1751,55 +1903,22 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
         S[map[id]] = inp.checked;
         save();
         if (id === 'optCount') $('rerollBox').hidden = !S.countRerolls;
-        if (id === 'optChroma') document.body.classList.toggle('chroma', S.chroma);
         if (id === 'optNoRepHero') { updateCounts(); drawWheel(); }
       });
     });
     $('rerollBox').hidden = !S.countRerolls;
-    document.body.classList.toggle('chroma', S.chroma);
   }
   function setMuted(m) {
     S.muted = m;
-    $('btnMute').setAttribute('aria-pressed', m ? 'true' : 'false');
-    $('muteLbl').textContent = m ? 'Silenciado' : 'Sonido';
-    var w = $('muteWave'); if (w) w.setAttribute('href', m ? '#i-mute' : '#i-sound');
-    var wm = $('wMute'); wm.setAttribute('aria-pressed', m ? 'true' : 'false');
-    wm.setAttribute('data-tip', m ? 'Activar sonido' : 'Silenciar');
-    wm.setAttribute('aria-label', m ? 'Activar sonido' : 'Silenciar');
-    wm.querySelector('use').setAttribute('href', m ? '#i-mute' : '#i-sound');
+    $('optSound').checked = !m;
     save();
-  }
-
-  /* ---------- Modo stream ---------- */
-  function enterStream() {
-    document.body.classList.add('stream');
-    if (S.fullscreen) {
-      try {
-        var p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
-        if (p && p.catch) p.catch(function () { });
-      } catch (e) { }
-    }
-    setTimeout(function () { resizeCanvas(); $('sbExit').focus(); }, 60);
-  }
-  function exitStream() {
-    document.body.classList.remove('stream');
-    try {
-      if (document.fullscreenElement && document.exitFullscreen) { var p = document.exitFullscreen(); if (p && p.catch) p.catch(function () { }); }
-    } catch (e) { }
-    setTimeout(function () { resizeCanvas(); $('btnStream').focus(); }, 60);
   }
 
   /* ---------- Eventos ---------- */
   function guard(fn) { return function (e) { if (e.currentTarget.getAttribute('aria-disabled') === 'true') return; fn(); }; }
   $('btnSpin').addEventListener('click', guard(function () { spinHero(false); }));
   $('btnHero').addEventListener('click', guard(function () { spinHero(true); }));
-  $('btnReto').addEventListener('click', guard(rerollReto));
-  $('sbSpin').addEventListener('click', function () { spinHero(false); });
-  $('sbReto').addEventListener('click', rerollReto);
-  $('sbExit').addEventListener('click', exitStream);
-  $('btnStream').addEventListener('click', enterStream);
   $('btnRerollReset').addEventListener('click', function () { rerolls = 0; $('rerollCount').textContent = '0'; });
-  $('btnMute').addEventListener('click', function () { ensureAudio(); setMuted(!S.muted); });
   var OVERLAYS = { panel: 'btnPanel', ovHeroes: 'navHeroes', ovHist: 'navHist' };
   var ovReturn = null;
   function openOverlay() { var o = null; Object.keys(OVERLAYS).forEach(function (id) { if (!$(id).hidden) o = id; }); return o; }
@@ -1825,17 +1944,9 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     $(id).addEventListener('click', function (e) { if (e.target === this) closeOverlay(); });
     $(id).querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeOverlay); });
   });
-  $('btnGear').addEventListener('click', function () { showOverlay('panel', this); });
   $('cfgCard').addEventListener('click', function () { showOverlay('panel', this); });
   $('wReto').addEventListener('click', guard(rerollReto));
-  $('wCopy').addEventListener('click', function () {
-    if (!history.length) { notice('No hay nada que copiar todavía.'); return; }
-    copyHistory();
-    setTimeout(function () { var m = $('copyMsg').textContent; if (m) notice(m); if (!$('copyFallback').hidden) showOverlay('ovHist', $('wCopy')); }, 120);
-  });
-  $('wMute').addEventListener('click', function () { ensureAudio(); setMuted(!S.muted); });
-  $('wStream').addEventListener('click', enterStream);
-  $('btnCopy').addEventListener('click', copyHistory);
+  $('optSound').addEventListener('change', function () { ensureAudio(); setMuted(!this.checked); });
   $('btnClear').addEventListener('click', function () {
     if (!history.length) return;
     $('clearConfirm').hidden = false; this.hidden = true; $('btnClearNo').focus();
@@ -1844,7 +1955,6 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   $('btnClearYes').addEventListener('click', function () {
     history = []; renderHistory();
     $('clearConfirm').hidden = true; $('btnClear').hidden = false; $('btnClear').focus();
-    $('copyMsg').textContent = ''; $('copyFallback').hidden = true;
   });
   $('heroSearch').addEventListener('input', syncHeroList);
   $('btnAll').addEventListener('click', function () { setVisibleHeroes(true); });
@@ -1859,7 +1969,6 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (closeOverlay()) { e.preventDefault(); return; }
-      if (document.body.classList.contains('stream')) { exitStream(); return; }
       return;
     }
     if (openOverlay()) return;
@@ -1883,6 +1992,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   buildHeroList();
   renderPanel();
   bindOptions();
+  bindOptPanel();
   setMuted(S.muted);
   $('dataVer').textContent = HAS_DATA
     ? 'Datos: versión ' + (DATA.version || '—') + ' · ' + DATA.heroes.length + ' héroes · ' + DATA.generales.length + ' retos generales'
@@ -1905,5 +2015,102 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   renderHistory();
   updateCfg();
   renderSlots();
+  initTooltips();
+
+  /* ---------- Tooltip propio ----------
+     Sustituye al title nativo: al pasar el ratón (con retardo) o al llegar con el teclado,
+     mueve el title a data-ow-title y muestra una tarjeta con el estilo de la app.
+     Los botones .sq usan data-tip como cabecera y data-desc como texto. */
+  function initTooltips() {
+    var tip = el('div', 'ow-tip'); tip.setAttribute('role', 'tooltip'); tip.id = 'owTip';
+    var box = el('div', 'ow-tip-box'), inner = el('div', 'ow-tip-in');
+    var arrow = el('span', 'ow-tip-arrow');
+    box.appendChild(inner); tip.appendChild(box); tip.appendChild(arrow);
+    document.body.appendChild(tip);
+    var cur = null, timer = 0;
+    var SEL = '[title], [data-ow-title], .sq[data-desc]';
+    var canHover = window.matchMedia ? window.matchMedia('(hover: hover) and (min-width: 861px)') : null;
+
+    function textOf(t) {
+      if (t.hasAttribute('title')) {
+        var v = t.getAttribute('title');
+        t.setAttribute('data-ow-title', v); t.removeAttribute('title');
+        if (!t.hasAttribute('aria-describedby')) t.setAttribute('aria-description', v);
+      }
+      return t.getAttribute('data-ow-title') || '';
+    }
+    function fill(t) {
+      inner.textContent = '';
+      var head = null, body, key = null;
+      if (t.classList.contains('sq') && t.hasAttribute('data-desc')) {
+        head = t.getAttribute('data-tip'); body = t.getAttribute('data-desc');
+      } else {
+        body = textOf(t);
+        // "Texto… (Espacio)" → el atajo va aparte como tecla
+        var m = /^(.*?)\s*\(([^()]{1,10})\)$/.exec(body);
+        if (m) { body = m[1]; key = m[2]; }
+        // "Título: explicación" → cabecera + texto
+        var c = body.indexOf(': ');
+        if (c > 0 && c < 28) { head = body.slice(0, c); body = body.slice(c + 2); body = body.charAt(0).toUpperCase() + body.slice(1); }
+      }
+      if (!body) return false;
+      if (head) inner.appendChild(el('div', 'ow-tip-h', head));
+      inner.appendChild(el('div', 'ow-tip-b', body));
+      if (key) {
+        var k = el('div', 'ow-tip-k'); k.appendChild(el('kbd', null, key)); k.appendChild(document.createTextNode('Atajo'));
+        inner.appendChild(k);
+      }
+      return true;
+    }
+    function place(t) {
+      var r = t.getBoundingClientRect(), gap = 12, pad = 10;
+      var w = tip.offsetWidth, h = tip.offsetHeight, vw = document.documentElement.clientWidth;
+      var side = r.top - h - gap < pad ? 'bottom' : 'top';
+      var y = side === 'top' ? r.top - h - gap : r.bottom + gap;
+      var cx = r.left + r.width / 2;
+      var x = Math.max(pad, Math.min(cx - w / 2, vw - w - pad));
+      tip.setAttribute('data-side', side);
+      tip.style.left = Math.round(x) + 'px'; tip.style.top = Math.round(y) + 'px';
+      arrow.style.left = Math.round(Math.max(14, Math.min(cx - x, w - 14))) + 'px';
+    }
+    function show(t) {
+      if (!t.isConnected || !fill(t)) return;
+      cur = t;
+      tip.classList.remove('show');
+      place(t);
+      requestAnimationFrame(function () { if (cur === t) tip.classList.add('show'); });
+    }
+    function hide() { clearTimeout(timer); cur = null; tip.classList.remove('show'); }
+    function target(e) { var t = e.target.closest && e.target.closest(SEL); return t && !tip.contains(t) ? t : null; }
+
+    document.addEventListener('pointerover', function (e) {
+      if (e.pointerType !== 'mouse' || (canHover && !canHover.matches)) return;
+      var t = target(e);
+      if (t) textOf(t); // quita el title nativo antes de que el navegador lo muestre
+      if (t === cur) return;
+      clearTimeout(timer);
+      if (!t) { if (cur) hide(); return; }
+      if (cur) show(t); else timer = setTimeout(function () { show(t); }, 380);
+    });
+    document.addEventListener('pointerout', function (e) {
+      var t = target(e); if (!t) return;
+      if (!e.relatedTarget || !t.contains(e.relatedTarget)) {
+        clearTimeout(timer);
+        timer = setTimeout(function () { if (cur === t || !cur) hide(); }, 60);
+      }
+    });
+    document.addEventListener('focusin', function (e) {
+      var t = target(e);
+      if (!t) return;
+      var fv = false; try { fv = e.target.matches(':focus-visible'); } catch (x) { }
+      if (fv) { clearTimeout(timer); show(t); }
+    });
+    document.addEventListener('focusout', function () { if (cur && !cur.contains(document.activeElement)) hide(); });
+    document.addEventListener('pointerdown', hide, true);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') hide(); }, true);
+    window.addEventListener('scroll', hide, true);
+    window.addEventListener('resize', hide);
+    window.addEventListener('blur', hide);
+  }
 })();
 </script>
