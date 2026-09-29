@@ -550,6 +550,61 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
   .reveal-fx { display: none; }
   * { transition: none !important; }
 }
+
+/* ===== Ajustes responsive ===== */
+.stage { overflow-x: clip; }
+#result, #wheelWrap { scroll-margin-top: calc(var(--bar-h) + 12px); }
+@media (max-width: 1200px) {
+  .retos .reto.empty:not(:first-child) { display: none; }
+}
+@media (max-width: 860px) {
+  #result, #wheelWrap { scroll-margin-top: 12px; }
+}
+@media (hover: none), (max-width: 860px) {
+  .wait-row { padding-bottom: 34px; }
+  .sq::after {
+    opacity: 1; top: calc(100% + 7px); bottom: auto; width: 62px; padding: 0; background: none;
+    white-space: normal; text-align: center; font-size: .7rem; line-height: 1.1; color: var(--white);
+    text-shadow: 0 1px 4px rgba(20, 26, 60, .7);
+  }
+}
+@media (max-width: 380px) {
+  .sq { width: 48px; height: 48px; }
+  .sq::after { width: 56px; font-size: .64rem; }
+}
+
+/* Pantallas grandes (1440p, 4K): todo crece para llenar la pantalla como el menú del juego */
+@media (min-width: 1880px) and (min-height: 1000px) {
+  :root { --bar-h: 88px; }
+  html { font-size: 18px; }
+  body { font-size: 20px; }
+  .stage, .bottom { max-width: 1840px; }
+  .modes { max-width: 1640px; }
+  .wheel-wrap { width: clamp(280px, min(40vw, calc(100vh - 432px)), 780px); }
+}
+@media (min-width: 2300px) and (min-height: 1250px) {
+  :root { --bar-h: 108px; }
+  html { font-size: 22px; }
+  body { font-size: 24px; }
+  .stage, .bottom { max-width: 2300px; }
+  .modes { max-width: 2050px; }
+  .wheel-wrap { width: clamp(280px, min(40vw, calc(100vh - 520px)), 1000px); }
+  .sq { width: 84px; height: 84px; }
+  .sq svg { width: 38px; height: 38px; }
+  .seg-home { width: 96px; }
+}
+@media (min-width: 3000px) and (min-height: 1650px) {
+  :root { --bar-h: 150px; }
+  html { font-size: 32px; }
+  body { font-size: 34px; }
+  .stage, .bottom { max-width: 3400px; }
+  .modes { max-width: 3000px; }
+  .wheel-wrap { width: clamp(280px, min(40vw, calc(100vh - 760px)), 1480px); }
+  .sq { width: 120px; height: 120px; }
+  .sq svg { width: 54px; height: 54px; }
+  .seg-home { width: 140px; }
+  .seg-home svg { width: 44px; height: 44px; }
+}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -1353,6 +1408,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     res.classList.add('revealing');
     var ri = $('heroRoleIcon'); ri.textContent = ''; ri.appendChild(roleIcon(h.role));
     playRevealFx(h);
+    bringIntoView(res, 'start');
     var meta = $('heroMeta');
     meta.textContent = '';
     var t = el('span', 'tag role-' + h.role);
@@ -1430,6 +1486,15 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     $('btnReto').setAttribute('aria-disabled', busy || !current ? 'true' : 'false');
     $('wReto').setAttribute('aria-disabled', busy || !current ? 'true' : 'false');
   }
+  /* En pantallas estrechas, lleva a la vista lo que está pasando (ruleta al girar, resultado al terminar). */
+  var narrowMq = window.matchMedia ? window.matchMedia('(max-width: 1200px)') : null;
+  function bringIntoView(node, block) {
+    if (!node || !narrowMq || !narrowMq.matches || document.body.classList.contains('stream')) return;
+    var r = node.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    if (r.top >= 0 && r.bottom <= vh) return;
+    try { node.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: block }); } catch (e) { node.scrollIntoView(); }
+  }
   function spinHero(isReroll) {
     if (busy) return;
     ensureAudio();
@@ -1437,6 +1502,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
     if (!wheelList.length) { notice(HAS_DATA ? 'No hay héroes en juego: revisa los filtros.' : 'No se han cargado los datos de héroes.'); return; }
     if (isReroll && !current) return;
     setBusy(true);
+    bringIntoView($('wheelWrap'), 'center');
     if (isReroll) bumpReroll();
     var h = chooseHero(wheelList, isReroll && current ? current.hero.id : null);
     var idx = wheelList.indexOf(h);
@@ -1630,7 +1696,7 @@ body.stream.chroma::before, body.stream.chroma::after, body.stream.chroma .wheel
       return { h: h, li: li, cb: cb, key: norm(h.name) };
     });
   }
-  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
   function syncHeroList() {
     var q = norm($('heroSearch').value.trim());
     var visible = 0;

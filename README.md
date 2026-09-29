@@ -6,7 +6,8 @@ Ruleta para streams: sortea un héroe y un reto aleatorio para jugar la partida.
 - Cuatro modos de reto: del héroe, general, los dos a la vez o mezcla aleatoria.
 - Filtros por rol, subrol, dificultad y categoría, y exclusión de héroes sueltos.
 - Opciones para no repetir héroe o reto, re-tirar, contador de re-tiradas e historial copiable.
-- Modo stream con fondo croma para OBS y pantalla completa. La barra espaciadora hace girar la ruleta.
+- Modo stream con fondo croma para OBS y pantalla completa. La barra espaciadora hace girar la ruleta y la R re-tira el reto.
+- Diseño inspirado en el menú principal del juego, adaptado a móvil, tablet, 1080p, 1440p y 4K.
 
 ## Uso
 
@@ -29,5 +30,6 @@ Abre `index.html` en el navegador. No necesita servidor ni dependencias.
 ## Publicar en GitHub Pages
 
 En el repositorio: Settings → Pages → Deploy from a branch → `main` / raíz.
+La ruleta quedará en `https://cdmarin.github.io/ruleta-retos-ow/`, lista para añadir como fuente de navegador en OBS.
 
 Proyecto de fans sin relación con Blizzard Entertainment. No incluye logos ni imágenes oficiales.
